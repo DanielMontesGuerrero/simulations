@@ -1,0 +1,4 @@
+# Buck
+/buck-out/
+/.buckd/
+.buckconfig.local

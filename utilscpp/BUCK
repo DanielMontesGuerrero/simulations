@@ -1,0 +1,15 @@
+load('//:subdir_glob.bzl', 'subdir_glob')
+
+cxx_library(
+    name='utilscpp',
+    header_namespace='utilscpp',
+    exported_headers=subdir_glob([
+        ('include', '**/*.hpp'),
+    ]),
+    srcs=glob([
+        'src/**/*.cpp',
+    ]),
+    visibility=[
+        '//...',
+    ],
+)
