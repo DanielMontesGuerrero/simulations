@@ -11,6 +11,21 @@ Matrix::Matrix(int rows, int cols) : rows(rows), cols(cols) {
   grid = vector<vector<lli>>(rows, vector<lli>(num_of_i64, 0));
 }
 
-bool Matrix::get(int i, int j) { return (grid[i][j / 64] >> (j % 64)) & 1; }
+bool Matrix::get(int i, int j) const { return (grid[i][j / 64] >> (j % 64)) & 1; }
 
-void Matrix::set(int i, int j, bool x) { grid[i][j / 64] |= (x << (j % 64)); }
+void Matrix::turn_on(int i, int j) {
+  grid[i][j / 64] |= (1 << (j % 64));
+}
+
+void Matrix::turn_off(int i, int j) {
+  grid[i][j / 64] &= ~(1 << (j % 64));
+}
+
+void Matrix::set(int i, int j, bool val) {
+  if (val) turn_on(i, j);
+  else turn_off(i, j);
+}
+
+bool Matrix::are_valid_coords(int i, int j) const {
+  return !(i < 0 || i >= rows || j < 0 || j >= cols);
+}

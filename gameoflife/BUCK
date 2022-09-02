@@ -4,10 +4,10 @@ cxx_binary(
     name='gameoflife',
     header_namespace='gameoflife',
     headers=subdir_glob([
-        ('gameoflife/include', '**/*.hpp'),
+        ('include', '**/*.hpp'),
     ]),
     srcs=glob([
-        'gameoflife/src/**/*.cpp',
+        'src/**/*.cpp',
     ]),
     deps=[
         '//utilscpp:utilscpp',

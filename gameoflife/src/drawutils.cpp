@@ -3,14 +3,14 @@
 #include "utilscpp/colors.hpp"
 #include <SDL2/SDL.h>
 
-void draw_grid(SDL_Renderer *renderer, GameOfLife *gameoflife) {
+void draw_grid(SDL_Renderer *renderer, const GameOfLife& gameoflife) {
   // Draw cells
   SDL_SetRenderDrawColor(renderer, grid_cell_alive_color().r,
                          grid_cell_alive_color().g, grid_cell_alive_color().b,
                          grid_cell_alive_color().a);
-  for (int i = 0; i < gameoflife->matrix.rows; i++) {
-    for (int j = 0; j < gameoflife->matrix.cols; j++) {
-      if (!gameoflife->matrix.get(i, j))
+  for (int i = 0; i < gameoflife.matrix.rows; i++) {
+    for (int j = 0; j < gameoflife.matrix.cols; j++) {
+      if (!gameoflife.matrix.get(i, j))
         continue;
       SDL_Rect aux = {
           .x = j * CELL_SIZE,
@@ -35,7 +35,7 @@ void draw_grid(SDL_Renderer *renderer, GameOfLife *gameoflife) {
   }
 }
 
-void draw(SDL_Renderer *renderer, GameOfLife *gameoflife) {
+void draw(SDL_Renderer *renderer, const GameOfLife& gameoflife) {
   // Draw grid background.
   SDL_SetRenderDrawColor(renderer, grid_background_color().r,
                          grid_background_color().g, grid_background_color().b,

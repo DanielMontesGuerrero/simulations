@@ -1,6 +1,10 @@
 #include "gameoflife/config.hpp"
 #include "gameoflife/drawutils.hpp"
 #include "gameoflife/gameoflife.hpp"
+#include "gameoflife/updatemanager.hpp"
+#include <ratio>
+#include <chrono>
+#include <ctime>
 #include <SDL2/SDL.h>
 #include <iostream>
 
@@ -21,6 +25,8 @@ int main() {
   SDL_SetWindowTitle(window, "Game of life");
 
   GameOfLife gameoflife(GRID_HEIGHT, GRID_WIDTH);
+  UpdateManager manager;
+  manager.last_update_timestamp = clock();
 
   SDL_bool quit = SDL_FALSE;
   while (!quit) {
@@ -32,6 +38,13 @@ int main() {
         break;
       }
     }
+
+    auto dt = clock() - manager.last_update_timestamp;
+    if (1000 * dt / CLOCKS_PER_SEC > manager.update_rate_ms) {
+      manager.last_update_timestamp = clock();
+      gameoflife.update();
+    }
+
     draw(renderer, gameoflife);
   }
 
