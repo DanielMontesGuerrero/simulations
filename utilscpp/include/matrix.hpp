@@ -7,7 +7,7 @@
 using std::vector;
 
 class Matrix {
-public:
+ public:
   int rows;
   int cols;
 
@@ -19,6 +19,6 @@ public:
   void set(int i, int j, bool val);
   bool are_valid_coords(int i, int j) const;
 
-private:
+ private:
   vector<vector<std::int64_t>> grid;
 };

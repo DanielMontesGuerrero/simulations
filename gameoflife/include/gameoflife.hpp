@@ -1,8 +1,9 @@
 #pragma once
 
-#include "utilscpp/matrix.hpp"
 #include <utility>
 #include <vector>
+
+#include "utilscpp/matrix.hpp"
 
 using std::pair;
 using std::vector;
@@ -15,13 +16,13 @@ struct Rule {
 };
 
 class GameOfLife {
-public:
+ public:
   Matrix matrix;
 
   GameOfLife(int rows, int cols);
   void update();
 
-private:
+ private:
   Rule rule;
   vector<pair<int, int>> neighborhood_diffs;
 
