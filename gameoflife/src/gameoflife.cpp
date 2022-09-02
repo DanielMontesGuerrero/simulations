@@ -1,13 +1,15 @@
 #include "gameoflife/gameoflife.hpp"
 
-GameOfLife::GameOfLife(int rows, int cols) : matrix(rows, cols) {
+GameOfLife::GameOfLife(int rows, int cols,
+                       std::function<bool(int, int)> generator)
+    : matrix(rows, cols) {
   rule = {2, 3, 3, 3};
   neighborhood_diffs = {
       {-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1},
   };
   for (int i = 0; i < rows; i++) {
     for (int j = 0; j < cols; j++) {
-      matrix.set(i, j, (i + j + 1) % 2);
+      matrix.set(i, j, generator(i, j));
     }
   }
 }
@@ -35,8 +37,7 @@ int GameOfLife::get_neighborhood_count(int i, int j,
   for (const auto &diff : neighborhood_diffs) {
     int x = i + diff.first;
     int y = j + diff.second;
-    if (!matrix.are_valid_coords(x, y))
-      continue;
+    if (!matrix.are_valid_coords(x, y)) continue;
     ans += matrix.get(x, y);
   }
   return ans;

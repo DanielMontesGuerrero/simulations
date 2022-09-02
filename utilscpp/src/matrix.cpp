@@ -5,20 +5,18 @@
 
 using std::vector;
 
-typedef std::int64_t lli;
-
 Matrix::Matrix(int rows, int cols) : rows(rows), cols(cols) {
-  int num_of_i64 = cols / 64 + (cols % 64 > 0);
-  grid = vector<vector<lli>>(rows, vector<lli>(num_of_i64, 0));
+  int num_of_i32 = cols / 32 + (cols % 32 > 0);
+  grid = vector<vector<int>>(rows, vector<int>(num_of_i32, 0));
 }
 
 bool Matrix::get(int i, int j) const {
-  return (grid[i][j / 64] >> (j % 64)) & 1;
+  return (grid[i][j / 32] >> (j % 32)) & 1;
 }
 
-void Matrix::turn_on(int i, int j) { grid[i][j / 64] |= (1 << (j % 64)); }
+void Matrix::turn_on(int i, int j) { grid[i][j / 32] |= (1 << (j % 32)); }
 
-void Matrix::turn_off(int i, int j) { grid[i][j / 64] &= ~(1 << (j % 64)); }
+void Matrix::turn_off(int i, int j) { grid[i][j / 32] &= ~(1 << (j % 32)); }
 
 void Matrix::set(int i, int j, bool val) {
   if (val)

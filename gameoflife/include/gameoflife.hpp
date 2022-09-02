@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <utility>
 #include <vector>
 
@@ -19,7 +20,7 @@ class GameOfLife {
  public:
   Matrix matrix;
 
-  GameOfLife(int rows, int cols);
+  GameOfLife(int rows, int cols, std::function<bool(int, int)> generator);
   void update();
 
  private:

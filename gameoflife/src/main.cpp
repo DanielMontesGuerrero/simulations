@@ -3,6 +3,7 @@
 #include <SDL2/SDL_pixels.h>
 #include <SDL2/SDL_render.h>
 
+#include <cstdlib>
 #include <ctime>
 #include <iostream>
 
@@ -12,6 +13,7 @@
 #include "gameoflife/updatemanager.hpp"
 
 int main() {
+  srand(time(NULL));
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Initialize SDL: %s",
                  SDL_GetError());
@@ -38,7 +40,9 @@ int main() {
 
   SDL_SetWindowTitle(window, "Game of life");
 
-  GameOfLife gameoflife(GRID_HEIGHT, GRID_WIDTH);
+  GameOfLife gameoflife(GRID_HEIGHT, GRID_WIDTH, [](int i, int j){
+      return rand() % 2;
+      });
   UpdateManager manager;
   manager.last_update_timestamp = clock();
 

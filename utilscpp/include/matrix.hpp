@@ -20,5 +20,5 @@ class Matrix {
   bool are_valid_coords(int i, int j) const;
 
  private:
-  vector<vector<std::int64_t>> grid;
+  vector<vector<int>> grid;
 };
