@@ -13,8 +13,8 @@ jobs:
       - name: Install buck
         run: |
           curl -L https://github.com/facebook/buck/releases/download/v2019.10.17.01/buck.2019.10.17.01_all.deb -o buck.deb
-          dpkg -i buck.deb
-          rm buck.deb
-          ln -s /usr/bin/python2.7 /usr/bin/python
+          sudo dpkg -i buck.deb
+          sudo rm buck.deb
+          sudo ln -s /usr/bin/python2.7 /usr/bin/python
       - name: Build
         run: buck build //...
