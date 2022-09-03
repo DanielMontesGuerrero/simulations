@@ -11,9 +11,6 @@ cxx_binary(
     ]),
     deps=[
         '//utilscpp:utilscpp',
-    ],
-    linker_flags=[
-        '-LSDL2main',
-        '-lSDL2',
+        '//:sdl'
     ],
 )
