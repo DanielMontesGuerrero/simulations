@@ -8,9 +8,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
-      - name: Install GCC
-        uses: egor-tensin/setup-gcc@v1
-      - name: Buck build
-        uses: GuilleDF/buckaroo-action@v1.0.3
-        with:
-          commands: buck build //...
+      - name: Install dependecies
+        run: apt update && apt install -yq curl openjdk-8-jre-headless python2.7 libicu60 libxml2 gcc
+      - name: Install buck
+        run: |
+          curl -L https://github.com/facebook/buck/releases/download/v2019.10.17.01/buck.2019.10.17.01_all.deb -o buck.deb
+          dpkg -i buck.deb
+          rm buck.deb
+          ln -s /usr/bin/python2.7 /usr/bin/python
+      - name:
+        run: buck build //...
