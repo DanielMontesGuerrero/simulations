@@ -43,26 +43,26 @@ void handle_events(UpdateManager* manager, SDL_bool* quit,
         manager->should_render = true;
         switch (event.key.keysym.sym) {
           case SDLK_UP:
-            source->y = max(0, source->y - SCROLL_OFFSET);
+            source->y = max(0, source->y - SCROLL_AMOUNT);
             break;
           case SDLK_DOWN:
-            source->y = min(HEIGHT - source->h, source->y + SCROLL_OFFSET);
+            source->y = min(HEIGHT - source->h, source->y + SCROLL_AMOUNT);
             break;
           case SDLK_LEFT:
-            source->x = max(0, source->x - SCROLL_OFFSET);
+            source->x = max(0, source->x - SCROLL_AMOUNT);
             break;
           case SDLK_RIGHT:
-            source->x = min(WIDTH - source->w, source->x + SCROLL_OFFSET);
+            source->x = min(WIDTH - source->w, source->x + SCROLL_AMOUNT);
             break;
           case SDLK_o:
             source->w *= ZOOM_FACTOR;
             source->h *= ZOOM_FACTOR;
             source->w = min(source->w, WIDTH);
             source->h = min(source->h, HEIGHT);
-            source->x = max(0, source->x - SCROLL_OFFSET);
-            source->x = min(WIDTH - source->w, source->x + SCROLL_OFFSET);
-            source->y = max(0, source->y - SCROLL_OFFSET);
-            source->y = min(HEIGHT - source->h, source->y + SCROLL_OFFSET);
+            source->x = max(0, source->x - SCROLL_AMOUNT);
+            source->x = min(WIDTH - source->w, source->x + SCROLL_AMOUNT);
+            source->y = max(0, source->y - SCROLL_AMOUNT);
+            source->y = min(HEIGHT - source->h, source->y + SCROLL_AMOUNT);
             break;
           case SDLK_i:
             source->w /= ZOOM_FACTOR;

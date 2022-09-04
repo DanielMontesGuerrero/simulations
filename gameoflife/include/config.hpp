@@ -10,6 +10,6 @@ const int WINDOW_HEIGHT = 800;
 const int ZOOM_FACTOR = 2;
 const int ZOOM_DEFAULT = 1;
 const int MARGIN = 10;
-const int SCROLL_OFFSET = 3;
+const int SCROLL_AMOUNT = CELL_SIZE;
 const bool SHOULD_DRAW_GRID_LINES = true;
 const bool DEBUG = false;
