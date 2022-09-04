@@ -1,9 +1,5 @@
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_events.h>
-#include <SDL2/SDL_pixels.h>
-#include <SDL2/SDL_render.h>
 
-#include <cstdlib>
 #include <ctime>
 #include <iostream>
 
@@ -11,6 +7,7 @@
 #include "gameoflife/drawutils.hpp"
 #include "gameoflife/gameoflife.hpp"
 #include "gameoflife/updatemanager.hpp"
+#include "utilscpp/mousepointer.hpp"
 
 int main() {
   srand(time(NULL));
@@ -40,57 +37,28 @@ int main() {
 
   SDL_SetWindowTitle(window, "Game of life");
 
-  GameOfLife gameoflife(GRID_HEIGHT, GRID_WIDTH, [](int i, int j){
-      return rand() % 2;
-      });
+  GameOfLife gameoflife(GRID_HEIGHT, GRID_WIDTH,
+                        [](int i, int j) { return rand() % 2; });
   UpdateManager manager;
   manager.last_update_timestamp = clock();
+  MousePointer mpointer(0, 0, 5);
 
   SDL_bool quit = SDL_FALSE;
   while (!quit) {
-    SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-      switch (event.type) {
-        case SDL_QUIT:
-          quit = SDL_TRUE;
-          break;
-        case SDL_KEYDOWN:
-          switch (event.key.keysym.sym) {
-            case SDLK_UP:
-              source.y = std::max(0, source.y - SCROLL_OFFSET);
-              break;
-            case SDLK_DOWN:
-              source.y = std::min(HEIGHT - source.h, source.y + SCROLL_OFFSET);
-              break;
-            case SDLK_LEFT:
-              source.x = std::max(0, source.x - SCROLL_OFFSET);
-              break;
-            case SDLK_RIGHT:
-              source.x = std::min(WIDTH - source.w, source.x + SCROLL_OFFSET);
-              break;
-            case SDLK_o:
-              source.w *= ZOOM_FACTOR;
-              source.h *= ZOOM_FACTOR;
-              break;
-            case SDLK_i:
-              source.w /= ZOOM_FACTOR;
-              source.h /= ZOOM_FACTOR;
-              break;
-            default:
-              break;
-          }
-        default:
-          break;
-      }
-    }
+    handle_events(&manager, &quit, &gameoflife, &mpointer, &source);
 
     auto dt = clock() - manager.last_update_timestamp;
-    if (1000 * dt / CLOCKS_PER_SEC > manager.update_rate_ms) {
+    auto time_since_last_update = 1000 * dt / CLOCKS_PER_SEC;
+    if (time_since_last_update > manager.update_rate_ms && !manager.is_paused) {
       manager.last_update_timestamp = clock();
       gameoflife.update();
+      manager.should_render = true;
     }
 
-    draw(renderer, texture, source, dest, gameoflife);
+    if (manager.should_render) {
+      draw(renderer, texture, source, dest, gameoflife, mpointer);
+      manager.should_render = false;
+    }
   }
 
   SDL_DestroyRenderer(renderer);

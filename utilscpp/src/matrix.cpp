@@ -25,6 +25,8 @@ void Matrix::set(int i, int j, bool val) {
     turn_off(i, j);
 }
 
+void Matrix::toggle(int i, int j) { grid[i][j / 32] ^= (1 << (j % 32)); }
+
 bool Matrix::are_valid_coords(int i, int j) const {
   return !(i < 0 || i >= rows || j < 0 || j >= cols);
 }

@@ -9,3 +9,7 @@ SDL_Color grid_line_color() {
 SDL_Color grid_cell_alive_color() {
   return {255, 255, 255, 255};  // White
 }
+
+SDL_Color red() {
+  return {255, 0, 0, 255};
+}
