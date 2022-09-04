@@ -11,6 +11,6 @@ cxx_binary(
     ]),
     deps=[
         '//utilscpp:utilscpp',
-        '//:sdl'
+        '//:sdl',
     ],
 )

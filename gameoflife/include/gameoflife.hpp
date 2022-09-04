@@ -22,6 +22,7 @@ class GameOfLife {
 
   GameOfLife(int rows, int cols, std::function<bool(int, int)> generator);
   void update();
+  void on_click(int i, int j);
 
  private:
   Rule rule;

@@ -5,8 +5,9 @@
 
 #include "gameoflife/config.hpp"
 #include "utilscpp/colors.hpp"
+#include "utilscpp/drawers.hpp"
 
-void draw_grid(SDL_Renderer* renderer, const GameOfLife& gameoflife) {
+void draw(SDL_Renderer* renderer, const GameOfLife& gameoflife) {
   // draw cells
   SDL_SetRenderDrawColor(renderer, grid_cell_alive_color().r,
                          grid_cell_alive_color().g, grid_cell_alive_color().b,
@@ -40,7 +41,8 @@ void draw_grid(SDL_Renderer* renderer, const GameOfLife& gameoflife) {
 }
 
 void draw(SDL_Renderer* renderer, SDL_Texture* texture, SDL_Rect source,
-          SDL_Rect dest, const GameOfLife& gameoflife) {
+          SDL_Rect dest, const GameOfLife& gameoflife,
+          const MousePointer& mpointer) {
   // clear texture
   SDL_SetRenderTarget(renderer, texture);
   SDL_SetRenderDrawColor(renderer, grid_background_color().r,
@@ -49,7 +51,12 @@ void draw(SDL_Renderer* renderer, SDL_Texture* texture, SDL_Rect source,
   SDL_RenderClear(renderer);
 
   // draw grid
-  draw_grid(renderer, gameoflife);
+  draw(renderer, gameoflife);
+
+  if (DEBUG) {
+    // draw mouse pointer
+    draw(renderer, mpointer);
+  }
 
   // copy selection from texture to the screen
   SDL_SetRenderTarget(renderer, nullptr);

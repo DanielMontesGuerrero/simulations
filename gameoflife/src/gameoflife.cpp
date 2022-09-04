@@ -42,3 +42,5 @@ int GameOfLife::get_neighborhood_count(int i, int j,
   }
   return ans;
 }
+
+void GameOfLife::on_click(int i, int j) { matrix.toggle(i, j); }

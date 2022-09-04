@@ -12,3 +12,4 @@ const int ZOOM_DEFAULT = 1;
 const int MARGIN = 10;
 const int SCROLL_OFFSET = 3;
 const bool SHOULD_DRAW_GRID_LINES = true;
+const bool DEBUG = false;

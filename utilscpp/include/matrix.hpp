@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstdint>
-#include <utility>
 #include <vector>
 
 using std::vector;
@@ -17,6 +15,7 @@ class Matrix {
   void turn_on(int i, int j);
   void turn_off(int i, int j);
   void set(int i, int j, bool val);
+  void toggle(int i, int j);
   bool are_valid_coords(int i, int j) const;
 
  private:
