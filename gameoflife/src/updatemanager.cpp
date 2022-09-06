@@ -26,11 +26,12 @@ void handle_events(UpdateManager* manager, SDL_bool* quit,
       case SDL_MOUSEBUTTONDOWN:
         int x, y;
         tie(x, y) = translate_coords_from_window_to_rect(
-            WINDOW_WIDTH, WINDOW_HEIGHT, Offset(MARGIN), source->w, source->h,
-            event.motion.x, event.motion.y);
+            Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT, Offset(Config::MARGIN),
+            source->w, source->h, event.motion.x, event.motion.y);
         tie(x, y) = translate_coords_from_rect_to_texture(
-            source->w, source->h, source->x, source->y, WIDTH, HEIGHT, x, y);
-        gameoflife->on_click(y / CELL_SIZE, x / CELL_SIZE);
+            source->w, source->h, source->x, source->y, Config::WIDTH,
+            Config::HEIGHT, x, y);
+        gameoflife->on_click(y / Config::CELL_SIZE, x / Config::CELL_SIZE);
         mpointer->x = x;
         mpointer->y = y;
         manager->should_render = true;
@@ -43,35 +44,49 @@ void handle_events(UpdateManager* manager, SDL_bool* quit,
         manager->should_render = true;
         switch (event.key.keysym.sym) {
           case SDLK_UP:
-            source->y = max(0, source->y - SCROLL_AMOUNT);
+            source->y = max(0, source->y - Config::SCROLL_AMOUNT);
             break;
           case SDLK_DOWN:
-            source->y = min(HEIGHT - source->h, source->y + SCROLL_AMOUNT);
+            source->y = min(Config::HEIGHT - source->h,
+                            source->y + Config::SCROLL_AMOUNT);
             break;
           case SDLK_LEFT:
-            source->x = max(0, source->x - SCROLL_AMOUNT);
+            source->x = max(0, source->x - Config::SCROLL_AMOUNT);
             break;
           case SDLK_RIGHT:
-            source->x = min(WIDTH - source->w, source->x + SCROLL_AMOUNT);
+            source->x = min(Config::WIDTH - source->w,
+                            source->x + Config::SCROLL_AMOUNT);
             break;
           case SDLK_o:
-            source->w *= ZOOM_FACTOR;
-            source->h *= ZOOM_FACTOR;
-            source->w = min(source->w, WIDTH);
-            source->h = min(source->h, HEIGHT);
-            source->x = max(0, source->x - SCROLL_AMOUNT);
-            source->x = min(WIDTH - source->w, source->x + SCROLL_AMOUNT);
-            source->y = max(0, source->y - SCROLL_AMOUNT);
-            source->y = min(HEIGHT - source->h, source->y + SCROLL_AMOUNT);
+            source->w *= Config::ZOOM_FACTOR;
+            source->h *= Config::ZOOM_FACTOR;
+            source->w = min(source->w, Config::WIDTH);
+            source->h = min(source->h, Config::HEIGHT);
+            source->x = max(0, source->x - Config::SCROLL_AMOUNT);
+            source->x = min(Config::WIDTH - source->w,
+                            source->x + Config::SCROLL_AMOUNT);
+            source->y = max(0, source->y - Config::SCROLL_AMOUNT);
+            source->y = min(Config::HEIGHT - source->h,
+                            source->y + Config::SCROLL_AMOUNT);
             break;
           case SDLK_i:
-            source->w /= ZOOM_FACTOR;
-            source->h /= ZOOM_FACTOR;
+            source->w /= Config::ZOOM_FACTOR;
+            source->h /= Config::ZOOM_FACTOR;
             source->w = max(source->w, 1);
             source->h = max(source->h, 1);
             break;
           case SDLK_p:
             manager->is_paused ^= true;
+            break;
+          case SDLK_f:
+            manager->update_rate_ms =
+                max(manager->update_rate_ms - Config::SPEED_FACTOR,
+                    Config::MIN_UPDATE_RATE_MS);
+            break;
+          case SDLK_s:
+            manager->update_rate_ms =
+                min(manager->update_rate_ms + Config::SPEED_FACTOR,
+                    Config::MAX_UPDATE_RATE_MS);
             break;
           default:
             break;

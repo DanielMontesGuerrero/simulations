@@ -16,3 +16,5 @@ buck run gameoflife
 - o: Zoom out
 - p: Pause
 - click: Invierte el estado de la celda seleccionada
+- f: Aumentar velocidad de animación
+- s: Disminuir velocidad de animación

@@ -1,5 +1,10 @@
 #include "gameoflife/gameoflife.hpp"
 
+#include <functional>
+
+#include "gameoflife/config.hpp"
+#include "utilscpp/matrix.hpp"
+
 GameOfLife::GameOfLife(int rows, int cols,
                        std::function<bool(int, int)> generator)
     : matrix(rows, cols) {
@@ -35,10 +40,14 @@ int GameOfLife::get_neighborhood_count(int i, int j,
                                        const Matrix &matrix) const {
   int ans = 0;
   for (const auto &diff : neighborhood_diffs) {
-    int x = i + diff.first;
-    int y = j + diff.second;
-    if (!matrix.are_valid_coords(x, y)) continue;
-    ans += matrix.get(x, y);
+    int y = i + diff.first;
+    int x = j + diff.second;
+    if (Config::SHOULD_MODULE_INDEXES) {
+      x = (x + matrix.cols) % matrix.cols;
+      y = (y + matrix.rows) % matrix.rows;
+    }
+    if (!matrix.are_valid_coords(y, x)) continue;
+    ans += matrix.get(y, x);
   }
   return ans;
 }
