@@ -68,10 +68,14 @@ func (game GameOfLife) GetNeighborhoodCount(i int, j int, matrix utilsgo.Matrix)
 	for _, diff := range game.neighborhoodDiffs {
 		y := i + diff[0]
 		x := j + diff[1]
-		if !game.matrix.AreValidCoords(y, x) {
+		if !matrix.AreValidCoords(y, x) {
 			continue
 		}
-		ans += game.matrix.Get(x, y)
+		ans += matrix.Get(y, x)
 	}
 	return ans
+}
+
+func (game GameOfLife) Get(i int, j int) int {
+	return game.matrix.Get(i, j)
 }
