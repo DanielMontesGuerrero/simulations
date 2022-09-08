@@ -1,0 +1,10 @@
+go_binary(
+    name = "hello_world",
+    srcs = [
+        "main.go",
+    ],
+    deps = [
+        "//gameoflifeServer/gameoflife:gameoflife",
+        "//utilsgo:utilsgo",
+    ],
+)

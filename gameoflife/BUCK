@@ -1,16 +1,16 @@
-load('//:subdir_glob.bzl', 'subdir_glob')
+load("//:subdir_glob.bzl", "subdir_glob")
 
 cxx_binary(
-    name='gameoflife',
-    header_namespace='gameoflife',
-    headers=subdir_glob([
-        ('include', '**/*.hpp'),
+    name = "gameoflife",
+    header_namespace = "gameoflife",
+    headers = subdir_glob([
+        ("include", "**/*.hpp"),
     ]),
-    srcs=glob([
-        'src/**/*.cpp',
+    srcs = glob([
+        "src/**/*.cpp",
     ]),
-    deps=[
-        '//utilscpp:utilscpp',
-        '//:sdl',
+    deps = [
+        "//utilscpp:utilscpp",
+        "//:sdl",
     ],
 )
