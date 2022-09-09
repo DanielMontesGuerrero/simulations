@@ -14,6 +14,9 @@ jobs:
         with:
           distribution: 'adopt'
           java-version: '8'
+      - uses: actions/setup-go@v3
+        with:
+          go-version: '^1.19.1'
       - name: Install buck
         run: |
           curl -L https://github.com/facebook/buck/releases/download/v2022.05.05.01/buck.2022.05.05.01_all.deb -o buck.deb
