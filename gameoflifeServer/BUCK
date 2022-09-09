@@ -1,10 +1,26 @@
 go_binary(
     name = "hello_world",
     srcs = [
-        "main.go",
+        "cmd/runner/main.go",
     ],
     deps = [
         "//gameoflifeServer/gameoflife:gameoflife",
         "//utilsgo:utilsgo",
+    ],
+)
+
+go_binary(
+    name = "server",
+    srcs = ["cmd/server/main.go"],
+    deps = [
+        "//gameoflifeServer/connect:connect",
+    ],
+)
+
+go_binary(
+    name = "client",
+    srcs = ["cmd/client/main.go"],
+    deps = [
+        "//gameoflifeServer/connect:connect",
     ],
 )
