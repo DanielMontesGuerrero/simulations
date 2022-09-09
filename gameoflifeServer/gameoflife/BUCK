@@ -1,0 +1,12 @@
+go_library(
+    name = "gameoflife",
+    srcs = glob([
+        "*.go",
+    ]),
+    deps = [
+        "//utilsgo:utilsgo",
+    ],
+    visibility = [
+        "//...",
+    ],
+)

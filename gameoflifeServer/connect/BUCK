@@ -1,0 +1,5 @@
+go_library(
+    name = "connect",
+    srcs = glob(["*.go"]),
+    visibility = ["//..."],
+)

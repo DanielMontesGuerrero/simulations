@@ -1,0 +1,9 @@
+go_library(
+    name = "utilsgo",
+    srcs = glob([
+        "*.go",
+    ]),
+    visibility = [
+        "//...",
+    ],
+)

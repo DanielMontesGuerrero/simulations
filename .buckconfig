@@ -3,3 +3,6 @@
 
 [parser]
 	default_build_file_syntax = SKYLARK
+
+[go]
+prefix = github.com/DanielMontesGuerrero/simulations
