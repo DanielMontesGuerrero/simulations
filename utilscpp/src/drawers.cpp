@@ -1,7 +1,10 @@
 #include "utilscpp/drawers.hpp"
 
+#include "utilscpp/colors.hpp"
+#include "utilscpp/mousepointer.hpp"
+
 void draw(SDL_Renderer* renderer, const MousePointer& mpointer) {
-  draw_circle(renderer, mpointer.x, mpointer.y, mpointer.r, red());
+  draw_circle(renderer, mpointer.x, mpointer.y, mpointer.r, Color::RED);
 }
 
 void draw_circle(SDL_Renderer* renderer, int centre_x, int centre_y, int radius,

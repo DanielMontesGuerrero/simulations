@@ -17,27 +17,29 @@ int main() {
     return EXIT_FAILURE;
   }
 
-  SDL_Rect source{0, 0, WINDOW_WIDTH / ZOOM_DEFAULT,
-                  WINDOW_HEIGHT / ZOOM_DEFAULT};
-  SDL_Rect dest{MARGIN, MARGIN, WINDOW_WIDTH - 2 * MARGIN,
-                WINDOW_HEIGHT - 2 * MARGIN};
+  SDL_Rect source{0, 0, Config::WINDOW_WIDTH / Config::ZOOM_DEFAULT,
+                  Config::WINDOW_HEIGHT / Config::ZOOM_DEFAULT};
+  SDL_Rect dest{Config::MARGIN, Config::MARGIN,
+                Config::WINDOW_WIDTH - 2 * Config::MARGIN,
+                Config::WINDOW_HEIGHT - 2 * Config::MARGIN};
   SDL_Window *window;
   SDL_Renderer *renderer;
   SDL_Texture *texture;
 
-  if (SDL_CreateWindowAndRenderer(WINDOW_WIDTH, WINDOW_HEIGHT, 0, &window,
-                                  &renderer) < 0) {
+  if (SDL_CreateWindowAndRenderer(Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT,
+                                  0, &window, &renderer) < 0) {
     SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Create window and renderer: %s",
                  SDL_GetError());
     return EXIT_FAILURE;
   }
 
   texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888,
-                              SDL_TEXTUREACCESS_TARGET, WIDTH, HEIGHT);
+                              SDL_TEXTUREACCESS_TARGET, Config::WIDTH,
+                              Config::HEIGHT);
 
   SDL_SetWindowTitle(window, "Game of life");
 
-  GameOfLife gameoflife(GRID_HEIGHT, GRID_WIDTH,
+  GameOfLife gameoflife(Config::GRID_HEIGHT, Config::GRID_WIDTH,
                         [](int i, int j) { return rand() % 2; });
   UpdateManager manager;
   manager.last_update_timestamp = clock();
