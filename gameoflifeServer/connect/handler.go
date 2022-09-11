@@ -31,6 +31,10 @@ func sendOkResponse(connection net.Conn) {
 	WriteRaw(connection, CreateResponsePacket([]int{}))
 }
 
+func sendBadResponse(connection net.Conn) {
+	WriteRaw(connection, CreateResponsePacket([]int{}))
+}
+
 func handlePing(connection net.Conn, event byte, data []int) bool {
 	fmt.Println("Event: ", event)
 	fmt.Println("Data:")
@@ -45,7 +49,6 @@ func handlePing(connection net.Conn, event byte, data []int) bool {
 }
 
 func handleEvent(connection net.Conn, event byte, data []int, manager *gameoflife.GameManager) bool {
-	fmt.Println("hola")
 	switch event {
 	case EVENT_PAUSE:
 		manager.TogglePause()
@@ -53,8 +56,25 @@ func handleEvent(connection net.Conn, event byte, data []int, manager *gameoflif
 	case EVENT_MOUSE_CLICK:
 		if len(data) >= 2 {
 			manager.SetCell(data[0], data[1])
+			sendOkResponse(connection)
+		} else {
+			sendBadResponse(connection)
 		}
+	case EVENT_UPDATE_RATE_INCREASE:
+		manager.IncreaseUpdateRate()
 		sendOkResponse(connection)
+	case EVENT_UPDATE_RATE_DECREASE:
+		manager.DecreaseUpdateRate()
+		sendOkResponse(connection)
+	case EVENT_GET:
+		if len(data) >= 4 {
+			subgrid := manager.GetSubgrid(data[0], data[1], data[2], data[3])
+			buffer := SerializeMatrix(subgrid)
+			response := CreateResponsePacket(buffer)
+			WriteRaw(connection, response)
+		} else {
+			sendBadResponse(connection)
+		}
 	}
 	return true
 }

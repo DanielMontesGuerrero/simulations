@@ -8,5 +8,8 @@ const MESSAGE_CLOSE byte = 5
 
 const EVENT_PAUSE byte = 1
 const EVENT_MOUSE_CLICK byte = 2
+const EVENT_UPDATE_RATE_INCREASE byte = 3
+const EVENT_UPDATE_RATE_DECREASE byte = 4
+const EVENT_GET byte = 5
 
 const MAX_PACKET_LEN = 1000

@@ -33,5 +33,19 @@ func main() {
 	client.Send(connect.MESSAGE_LOG, 0, []int{})
 	fmt.Println("Sent log")
 
+	client.Send(connect.MESSAGE_EVENT, connect.EVENT_UPDATE_RATE_DECREASE, []int{})
+	fmt.Println("Sent Update decrease")
+	client.Send(connect.MESSAGE_LOG, 0, []int{})
+	fmt.Println("Sent log")
+	client.Send(connect.MESSAGE_EVENT, connect.EVENT_UPDATE_RATE_INCREASE, []int{})
+	fmt.Println("Sent Update increase")
+	client.Send(connect.MESSAGE_LOG, 0, []int{})
+	fmt.Println("Sent log")
+
+	response, _ = client.Send(connect.MESSAGE_EVENT, connect.EVENT_GET, []int{0, 5, 0, 5})
+	fmt.Println("Sent get")
+	matrix := connect.DeserializeMatrix(response)
+	matrix.Println()
+
 	client.Send(connect.MESSAGE_CLOSE, 0, []int{})
 }

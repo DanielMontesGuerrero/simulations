@@ -1,5 +1,7 @@
 package utilsgo
 
+import "fmt"
+
 type Matrix struct {
 	Rows int
 	Cols int
@@ -47,4 +49,28 @@ func (matrix *Matrix) Toggle(i int, j int) {
 
 func (matrix *Matrix) AreValidCoords(i int, j int) bool {
 	return !(i < 0 || i >= matrix.Rows || j < 0 || j >= matrix.Cols)
+}
+
+func (matrix *Matrix) SubMatrix(ui, di, lj, rj int) *Matrix {
+	nMatrix := New(di-ui+1, rj-lj+1)
+	for i := ui; i < nMatrix.Rows; i++ {
+		for j := lj; j < nMatrix.Cols; j++ {
+			nMatrix.Set(i-ui, j-lj, matrix.Get(i, j) == 1)
+		}
+	}
+	return nMatrix
+}
+
+func (matrix *Matrix) Println() {
+	for i := 0; i < matrix.Rows; i++ {
+		for j := 0; j < matrix.Cols; j++ {
+			if matrix.Get(i, j) == 1 {
+				fmt.Print("1")
+			} else {
+				fmt.Print("0")
+			}
+		}
+		fmt.Print("\n")
+	}
+	fmt.Print("\n")
 }

@@ -1,7 +1,6 @@
 package gameoflife
 
 import (
-	"fmt"
 	"math/rand"
 
 	"github.com/DanielMontesGuerrero/simulations/utilsgo"
@@ -82,15 +81,5 @@ func (game *GameOfLife) Get(i int, j int) int {
 }
 
 func (game *GameOfLife) Println() {
-	for i := 0; i < game.matrix.Rows; i++ {
-		for j := 0; j < game.matrix.Cols; j++ {
-			if game.Get(i, j) == 1 {
-				fmt.Print("1")
-			} else {
-				fmt.Print("0")
-			}
-		}
-		fmt.Print("\n")
-	}
-	fmt.Print("\n")
+	game.matrix.Println()
 }

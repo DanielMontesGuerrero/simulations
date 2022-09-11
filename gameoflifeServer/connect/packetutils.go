@@ -5,6 +5,8 @@ import (
 	"encoding/binary"
 	"fmt"
 	"net"
+
+	"github.com/DanielMontesGuerrero/simulations/utilsgo"
 )
 
 func CreatePacket(messageType byte, event byte, data []int) []byte {
@@ -110,4 +112,42 @@ func ReadRaw(connection net.Conn, size int) []byte {
 			return response
 		}
 	}
+}
+
+func SerializeMatrix(matrix utilsgo.Matrix) []int {
+	packet := make([]int, 0)
+	packet = append(packet, matrix.Rows)
+	packet = append(packet, matrix.Cols)
+	for i := 0; i < matrix.Rows; i++ {
+		for j := 0; j < matrix.Cols; j += 32 {
+			val := 0
+			for k := 0; k < 32; k++ {
+				if matrix.Get(i, j+k) == 1 {
+					val |= (1 << k)
+				}
+			}
+			packet = append(packet, val)
+		}
+	}
+	return packet
+}
+
+func DeserializeMatrix(packet []byte) utilsgo.Matrix {
+	rows := int(binary.LittleEndian.Uint32(packet[:4]))
+	cols := int(binary.LittleEndian.Uint32(packet[4:8]))
+	matrix := utilsgo.New(rows, cols)
+	numOfInts := cols / 32
+	if cols%32 > 0 {
+		numOfInts++
+	}
+	packet = packet[8:]
+	for i := 0; i < rows; i++ {
+		for j := 0; j < cols; j += 32 {
+			val := int(binary.LittleEndian.Uint32(packet[i*numOfInts*4+j*4 : i*numOfInts*4+j*4+4]))
+			for k := 0; k < 32; k++ {
+				matrix.Set(i, j+k, ((val>>k)&1) != 0)
+			}
+		}
+	}
+	return *matrix
 }
