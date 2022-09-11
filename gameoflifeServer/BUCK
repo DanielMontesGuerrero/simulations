@@ -1,11 +1,10 @@
 go_binary(
-    name = "hello_world",
+    name = "runner",
     srcs = [
         "cmd/runner/main.go",
     ],
     deps = [
-        "//gameoflifeServer/gameoflife:gameoflife",
-        "//utilsgo:utilsgo",
+        "//gameoflifeServer/workers:workers",
     ],
 )
 

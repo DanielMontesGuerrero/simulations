@@ -1,6 +1,7 @@
 package gameoflife
 
 import (
+	"fmt"
 	"math/rand"
 
 	"github.com/DanielMontesGuerrero/simulations/utilsgo"
@@ -19,7 +20,7 @@ type GameOfLife struct {
 	neighborhoodDiffs [][2]int
 }
 
-func New(rows int, cols int) *GameOfLife {
+func NewGame(rows int, cols int) *GameOfLife {
 	game := new(GameOfLife)
 	game.rule.survivalMin = 2
 	game.rule.survivalMax = 3
@@ -46,7 +47,7 @@ func New(rows int, cols int) *GameOfLife {
 	return game
 }
 
-func (game GameOfLife) Update() {
+func (game *GameOfLife) Update() {
 	prevMatrix := game.matrix
 	for i := 0; i < game.matrix.Rows; i++ {
 		for j := 0; j < game.matrix.Cols; j++ {
@@ -63,7 +64,7 @@ func (game GameOfLife) Update() {
 	}
 }
 
-func (game GameOfLife) GetNeighborhoodCount(i int, j int, matrix utilsgo.Matrix) int {
+func (game *GameOfLife) GetNeighborhoodCount(i int, j int, matrix utilsgo.Matrix) int {
 	ans := 0
 	for _, diff := range game.neighborhoodDiffs {
 		y := i + diff[0]
@@ -76,6 +77,20 @@ func (game GameOfLife) GetNeighborhoodCount(i int, j int, matrix utilsgo.Matrix)
 	return ans
 }
 
-func (game GameOfLife) Get(i int, j int) int {
+func (game *GameOfLife) Get(i int, j int) int {
 	return game.matrix.Get(i, j)
+}
+
+func (game *GameOfLife) Println() {
+	for i := 0; i < game.matrix.Rows; i++ {
+		for j := 0; j < game.matrix.Cols; j++ {
+			if game.Get(i, j) == 1 {
+				fmt.Print("1")
+			} else {
+				fmt.Print("0")
+			}
+		}
+		fmt.Print("\n")
+	}
+	fmt.Print("\n")
 }

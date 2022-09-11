@@ -3,6 +3,8 @@ package connect
 import (
 	"fmt"
 	"net"
+
+	"github.com/DanielMontesGuerrero/simulations/gameoflifeServer/gameoflife"
 )
 
 type Server struct {
@@ -20,21 +22,20 @@ func NewServer(host string, port int, protocol string) *Server {
 	return server
 }
 
-func (server Server) ListenAndServe(handler func(net.Conn) bool) {
+func (server *Server) Listen() {
 	var err any
 	server.listener, err = net.Listen(server.protocol, fmt.Sprintf("%s:%d", server.host, server.port))
 	if server.listener == nil || err != nil {
 		fmt.Println("Listener is nil in Listen()")
 		panic(err)
 	}
-	server.Serve(BaseHandler)
 }
 
-func (server Server) Close() {
+func (server *Server) Close() {
 	server.listener.Close()
 }
 
-func (server Server) Serve(handler func(conn net.Conn) bool) {
+func (server *Server) Serve(manager *gameoflife.GameManager) {
 	defer server.listener.Close()
 	for {
 		if server.listener == nil {
@@ -45,6 +46,6 @@ func (server Server) Serve(handler func(conn net.Conn) bool) {
 		if err != nil {
 			panic(err)
 		}
-		go handler(connection)
+		go BaseHandler(connection, manager)
 	}
 }

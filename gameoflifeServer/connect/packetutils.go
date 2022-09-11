@@ -16,21 +16,23 @@ func CreatePacket(messageType byte, event byte, data []int) []byte {
 	return packet
 }
 
-func ReadPacket(buffer []byte, readLen int) (byte, byte, []int) {
-	if readLen < 6 {
-		fmt.Printf("Expected readLen (%d) >= 6\n", readLen)
+func ReadPacket(conn net.Conn) (byte, byte, []int) {
+	buffer := ReadRaw(conn, 6)
+	if len(buffer) < 6 {
+		fmt.Printf("Expected readLen (%d) >= 6\n", len(buffer))
 		return MESSAGE_ERROR, 0, []int{}
 	}
 	messageType := buffer[0]
 	event := buffer[1]
 	dataLen := int(binary.LittleEndian.Uint32(buffer[2:6]))
-	if readLen < 6+dataLen {
-		fmt.Printf("Expected readLen (%d) >= %d", readLen, 6+dataLen)
+	buffer = ReadRaw(conn, dataLen*4)
+	if len(buffer) < 4*dataLen {
+		fmt.Printf("Expected readLen (%d) >= %d", len(buffer), 4*dataLen)
 		return MESSAGE_ERROR, 0, []int{}
 	}
 	data := make([]int, dataLen)
 	for i := 0; i < dataLen; i++ {
-		data[i] = int(binary.LittleEndian.Uint32(buffer[6+4*i : 6+4*i+4]))
+		data[i] = int(binary.LittleEndian.Uint32(buffer[4*i : 4*i+4]))
 	}
 	return messageType, event, data
 }
@@ -44,9 +46,19 @@ func CreateResponsePacket(data []int) []byte {
 	return packet
 }
 
-func ReadResponsePacket(buffer []byte, readLen int) ([]byte, int) {
-	packetLen := binary.LittleEndian.Uint32(buffer[:4])
-	return buffer[4 : packetLen+4], int(packetLen)
+func ReadResponsePacket(conn net.Conn) ([]byte, int) {
+	buffer := ReadRaw(conn, 4)
+	if len(buffer) < 4 {
+		fmt.Printf("Expected readLen (%d) >= %d", len(buffer), 4)
+		return []byte{}, 0
+	}
+	packetLen := int(binary.LittleEndian.Uint32(buffer))
+	buffer = ReadRaw(conn, packetLen)
+	if len(buffer) < packetLen {
+		fmt.Printf("Expected readLen (%d) >= %d", len(buffer), packetLen)
+		return []byte{}, 0
+	}
+	return buffer, packetLen
 }
 
 func appendInt(buffer []byte, val int) []byte {
@@ -61,26 +73,41 @@ func appendInt(buffer []byte, val int) []byte {
 }
 
 func WriteRaw(connection net.Conn, buffer []byte) {
+	if len(buffer) == 0 {
+		return
+	}
 	totalSentLen := 0
 	for {
 		sentLen, err := connection.Write(buffer[totalSentLen:])
 		if err != nil {
 			fmt.Println("Error writing data", err)
 		}
-		fmt.Printf("Sent %d bytes\n", sentLen)
 		totalSentLen += sentLen
 		if totalSentLen == len(buffer) {
+			fmt.Printf("Sent %d total bytes\n", len(buffer))
 			break
 		}
 	}
 }
 
-func ReadRaw(connection net.Conn) []byte {
-	buffer := make([]byte, MAX_PACKET_LEN)
-	readLen, err := connection.Read(buffer)
-	if err != nil {
-		fmt.Printf("Error reading packet: %s\n", err.Error())
+func ReadRaw(connection net.Conn, size int) []byte {
+	if size == 0 {
 		return []byte{}
 	}
-	return buffer[:readLen]
+	response := make([]byte, 0)
+	totalReadLen := 0
+	for {
+		buffer := make([]byte, size-totalReadLen)
+		readLen, err := connection.Read(buffer)
+		if err != nil {
+			fmt.Printf("Error reading bytes: %s\n", err.Error())
+			return []byte{}
+		}
+		totalReadLen += readLen
+		response = append(response, buffer...)
+		if totalReadLen == size {
+			fmt.Printf("Read %d total bytes\n", size)
+			return response
+		}
+	}
 }

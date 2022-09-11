@@ -21,19 +21,19 @@ func New(rows int, cols int) *Matrix {
 	return matrix
 }
 
-func (matrix Matrix) Get(i int, j int) int {
+func (matrix *Matrix) Get(i int, j int) int {
 	return (matrix.grid[i][j/32] >> (j % 32)) & 1
 }
 
-func (matrix Matrix) TurnOn(i int, j int) {
+func (matrix *Matrix) TurnOn(i int, j int) {
 	matrix.grid[i][j/32] |= (1 << (j % 32))
 }
 
-func (matrix Matrix) TurnOff(i int, j int) {
+func (matrix *Matrix) TurnOff(i int, j int) {
 	matrix.grid[i][j/32] &= ^(1 << (j % 32))
 }
 
-func (matrix Matrix) Set(i int, j int, val bool) {
+func (matrix *Matrix) Set(i int, j int, val bool) {
 	if val {
 		matrix.TurnOn(i, j)
 	} else {
@@ -41,10 +41,10 @@ func (matrix Matrix) Set(i int, j int, val bool) {
 	}
 }
 
-func (matrix Matrix) Toggle(i int, j int) {
+func (matrix *Matrix) Toggle(i int, j int) {
 	matrix.grid[i][j/32] ^= (1 << (j % 32))
 }
 
-func (matrix Matrix) AreValidCoords(i int, j int) bool {
+func (matrix *Matrix) AreValidCoords(i int, j int) bool {
 	return !(i < 0 || i >= matrix.Rows || j < 0 || j >= matrix.Cols)
 }
