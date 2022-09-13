@@ -1,6 +1,7 @@
 package gameoflife
 
 import (
+	"fmt"
 	"math/rand"
 
 	"github.com/DanielMontesGuerrero/simulations/utilsgo"
@@ -35,9 +36,9 @@ func NewGame(rows int, cols int) *GameOfLife {
 		{1, 0},
 		{1, 1},
 	}
-	game.matrix = *utilsgo.New(rows, cols)
-	for i := 0; i < rows; i++ {
-		for j := 0; j < cols; j++ {
+	game.matrix = *utilsgo.New(rows+2, cols+2)
+	for i := 1; i <= rows; i++ {
+		for j := 1; j <= cols; j++ {
 			if rand.Intn(2) == 1 {
 				game.matrix.Set(i, j, true)
 			}
@@ -48,8 +49,8 @@ func NewGame(rows int, cols int) *GameOfLife {
 
 func (game *GameOfLife) Update() {
 	prevMatrix := game.matrix
-	for i := 0; i < game.matrix.Rows; i++ {
-		for j := 0; j < game.matrix.Cols; j++ {
+	for i := 1; i < game.matrix.Rows-1; i++ {
+		for j := 1; j < game.matrix.Cols-1; j++ {
 			cnt := game.GetNeighborhoodCount(i, j, prevMatrix)
 			isAlive := prevMatrix.Get(i, j) == 1
 			newState := false
@@ -82,4 +83,23 @@ func (game *GameOfLife) Get(i int, j int) int {
 
 func (game *GameOfLife) Println() {
 	game.matrix.Println()
+}
+
+func (game *GameOfLife) SetBorders(top, bottom, left, right utilsgo.Vector) {
+	fmt.Printf("Top: ")
+	top.Println()
+	fmt.Printf("Bottom: ")
+	bottom.Println()
+	fmt.Printf("Left: ")
+	left.Println()
+	fmt.Printf("Right: ")
+	right.Println()
+	for i := 0; i < game.matrix.Rows; i++ {
+		game.matrix.Set(i, 0, left.Get(i) == 1)
+		game.matrix.Set(i, game.matrix.Rows-1, right.Get(i) == 1)
+	}
+	for i := 0; i < game.matrix.Cols; i++ {
+		game.matrix.Set(0, i, top.Get(i) == 1)
+		game.matrix.Set(game.matrix.Cols-1, i, top.Get(i) == 1)
+	}
 }

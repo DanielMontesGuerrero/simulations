@@ -30,6 +30,10 @@ func (manager *GameManager) Update() {
 	}
 }
 
+func (manager *GameManager) SingleUpdate() {
+	manager.game.Update()
+}
+
 func (manager *GameManager) TogglePause() {
 	manager.isPaused = !manager.isPaused
 }
@@ -41,7 +45,7 @@ func (manager *GameManager) Println() {
 }
 
 func (manager *GameManager) SetCell(i int, j int) {
-	manager.game.matrix.Toggle(i, j)
+	manager.game.matrix.Toggle(i+1, j+1)
 }
 
 func (manager *GameManager) IncreaseUpdateRate() {
@@ -53,5 +57,9 @@ func (manager *GameManager) DecreaseUpdateRate() {
 }
 
 func (manager *GameManager) GetSubgrid(ui, di, lj, rj int) utilsgo.Matrix {
-	return *manager.game.matrix.SubMatrix(ui, di, lj, rj)
+	return *manager.game.matrix.SubMatrix(ui+1, di+1, lj+1, rj+1)
+}
+
+func (manager *GameManager) SetBorders(top, bottom, left, right utilsgo.Vector) {
+	manager.game.SetBorders(top, bottom, left, right)
 }

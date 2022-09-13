@@ -9,34 +9,49 @@ import (
 	"github.com/DanielMontesGuerrero/simulations/utilsgo"
 )
 
-func CreatePacket(messageType byte, event byte, data []int) []byte {
+func CreatePacket(messageType byte, event byte, data []byte) []byte {
 	packet := []byte{messageType, event}
 	packet = appendInt(packet, len(data))
-	for i := 0; i < len(data); i++ {
-		packet = appendInt(packet, data[i])
-	}
+	packet = append(packet, data...)
 	return packet
 }
 
-func ReadPacket(conn net.Conn) (byte, byte, []int) {
+func ReadPacket(conn net.Conn) (byte, byte, []byte) {
 	buffer := ReadRaw(conn, 6)
 	if len(buffer) < 6 {
 		fmt.Printf("Expected readLen (%d) >= 6\n", len(buffer))
-		return MESSAGE_ERROR, 0, []int{}
+		return MESSAGE_ERROR, 0, []byte{}
 	}
 	messageType := buffer[0]
 	event := buffer[1]
 	dataLen := int(binary.LittleEndian.Uint32(buffer[2:6]))
-	buffer = ReadRaw(conn, dataLen*4)
-	if len(buffer) < 4*dataLen {
-		fmt.Printf("Expected readLen (%d) >= %d", len(buffer), 4*dataLen)
-		return MESSAGE_ERROR, 0, []int{}
+	buffer = ReadRaw(conn, dataLen)
+	if len(buffer) < dataLen {
+		fmt.Printf("Expected readLen (%d) >= %d", len(buffer), dataLen)
+		return MESSAGE_ERROR, 0, []byte{}
 	}
-	data := make([]int, dataLen)
-	for i := 0; i < dataLen; i++ {
-		data[i] = int(binary.LittleEndian.Uint32(buffer[4*i : 4*i+4]))
+	return messageType, event, buffer
+}
+
+func BytesToInts(buffer []byte) []int {
+	if len(buffer)%4 > 0 {
+		aux := make([]byte, 4-(len(buffer)%4))
+		buffer = append(buffer, aux...)
 	}
-	return messageType, event, data
+	data := make([]int, 0)
+	for i := 0; i < len(buffer); i += 4 {
+		val := int(binary.LittleEndian.Uint32(buffer[i : i+4]))
+		data = append(data, val)
+	}
+	return data
+}
+
+func IntsToBytes(buffer []int) []byte {
+	data := make([]byte, 0)
+	for i := 0; i < len(buffer); i++ {
+		data = appendInt(data, buffer[i])
+	}
+	return data
 }
 
 func CreateResponsePacket(data []int) []byte {
@@ -150,4 +165,58 @@ func DeserializeMatrix(packet []byte) utilsgo.Matrix {
 		}
 	}
 	return *matrix
+}
+
+func SerializeVector(vector utilsgo.Vector) []byte {
+	data := make([]byte, 0)
+	data = appendInt(data, vector.Size)
+	numOfInts := vector.Size / 32
+	if vector.Size%32 > 0 {
+		numOfInts++
+	}
+	for i := 0; i < numOfInts; i++ {
+		val := 0
+		for j := 0; j < 32; j++ {
+			if vector.Get(i*32+j) == 1 {
+				val |= (1 << j)
+			}
+		}
+		data = appendInt(data, val)
+	}
+	return data
+}
+
+func DeserializeVector(packet []byte) utilsgo.Vector {
+	size := int(binary.LittleEndian.Uint32(packet[:4]))
+	vector := utilsgo.NewVector(size)
+	packet = packet[4:]
+	for i := 0; i < size; i += 32 {
+		val := int(binary.LittleEndian.Uint32(packet[i/32*4 : i/32*4+4]))
+		for j := 0; j < 32; j++ {
+			vector.Set(i+j, ((val>>j)&1) != 0)
+		}
+	}
+	return *vector
+}
+
+func SerializeBorders(top, bottom, left, right utilsgo.Vector) []byte {
+	data := SerializeVector(top)
+	data = append(data, SerializeVector(bottom)...)
+	data = append(data, SerializeVector(left)...)
+	data = append(data, SerializeVector(right)...)
+	return data
+}
+
+func DeserializeBorders(data []byte) (utilsgo.Vector, utilsgo.Vector, utilsgo.Vector, utilsgo.Vector) {
+	vectors := make([]utilsgo.Vector, 4)
+	for i := 0; i < 4; i++ {
+		vec := DeserializeVector(data)
+		numOfInts := vec.Size / 32
+		if vec.Size%32 > 0 {
+			numOfInts++
+		}
+		data = data[(numOfInts+1)*4:]
+		vectors[i] = vec
+	}
+	return vectors[0], vectors[1], vectors[2], vectors[3]
 }

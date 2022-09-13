@@ -21,5 +21,6 @@ go_binary(
     srcs = ["cmd/client/main.go"],
     deps = [
         "//gameoflifeServer/connect:connect",
+        "//utilsgo:utilsgo",
     ],
 )

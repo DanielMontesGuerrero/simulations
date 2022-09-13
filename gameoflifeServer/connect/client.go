@@ -30,7 +30,7 @@ func (client *Client) Dial() net.Conn {
 	}
 }
 
-func (client *Client) Send(messageType byte, event byte, data []int) ([]byte, int) {
+func (client *Client) Send(messageType byte, event byte, data []byte) ([]byte, int) {
 	if client.connection == nil {
 		client.connection = client.Dial()
 	}

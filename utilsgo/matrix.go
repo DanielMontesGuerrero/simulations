@@ -53,9 +53,9 @@ func (matrix *Matrix) AreValidCoords(i int, j int) bool {
 
 func (matrix *Matrix) SubMatrix(ui, di, lj, rj int) *Matrix {
 	nMatrix := New(di-ui+1, rj-lj+1)
-	for i := ui; i < nMatrix.Rows; i++ {
-		for j := lj; j < nMatrix.Cols; j++ {
-			nMatrix.Set(i-ui, j-lj, matrix.Get(i, j) == 1)
+	for i := 0; i < nMatrix.Rows; i++ {
+		for j := 0; j < nMatrix.Cols; j++ {
+			nMatrix.Set(i, j, matrix.Get(i+ui, j+lj) == 1)
 		}
 	}
 	return nMatrix
