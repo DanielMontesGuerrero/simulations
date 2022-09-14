@@ -6,8 +6,8 @@ import (
 )
 
 type Worker struct {
-	game gameoflife.GameOfLife
-	server  connect.Server
+	game   gameoflife.GameOfLife
+	server connect.Server
 }
 
 func NewWorker(rows int, cols int, host string, port int, protocol string) *Worker {

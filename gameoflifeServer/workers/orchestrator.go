@@ -9,8 +9,8 @@ import (
 )
 
 type HostData struct {
-	Host string
-	Port int
+	Host     string
+	Port     int
 	Protocol string
 }
 
@@ -50,7 +50,7 @@ func (orch *Orchestrator) updateBorder(clientId int) {
 
 func (orch *Orchestrator) requestBorder(borderIndexes [3][4]int) utilsgo.Vector {
 	vecLen := 0
-	for i := 0; i < len(borderIndexes); i++{
+	for i := 0; i < len(borderIndexes); i++ {
 		if borderIndexes[i][0] == borderIndexes[i][1] {
 			vecLen += borderIndexes[i][3] - borderIndexes[i][2] + 1
 		} else {
@@ -89,7 +89,7 @@ func (orch *Orchestrator) requestBorder(borderIndexes [3][4]int) utilsgo.Vector 
 		fmt.Printf("Recieved vector: ")
 		aux.Println()
 		for j := 0; j < auxLen; j++ {
-			vec.Set(currSize + j, aux.Get(j) == 1)
+			vec.Set(currSize+j, aux.Get(j) == 1)
 		}
 		currSize += auxLen
 	}

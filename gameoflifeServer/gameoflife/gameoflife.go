@@ -105,7 +105,7 @@ func (game *GameOfLife) SetBorders(top, bottom, left, right utilsgo.Vector) {
 }
 
 func (game *GameOfLife) ToggleCell(i, j int) {
-	game.matrix.Toggle(i + 1, j + 1)
+	game.matrix.Toggle(i+1, j+1)
 }
 
 func (game *GameOfLife) GetSubgrid(ui, di, lj, rj int) utilsgo.Matrix {

@@ -56,7 +56,7 @@ func handleEvent(connection net.Conn, event byte, buffer []byte, game *gameoflif
 	case EVENT_MOUSE_CLICK:
 		data := BytesToInts(buffer)
 		if len(data) >= 2 {
-			game.ToggleCell(data[0] + 1, data[1] + 1)
+			game.ToggleCell(data[0]+1, data[1]+1)
 			sendOkResponse(connection)
 		} else {
 			sendBadResponse(connection)
@@ -64,7 +64,7 @@ func handleEvent(connection net.Conn, event byte, buffer []byte, game *gameoflif
 	case EVENT_GET:
 		data := BytesToInts(buffer)
 		if len(data) >= 4 {
-			subgrid := game.GetSubgrid(data[0] + 1, data[1] + 1, data[2] + 1, data[3] + 1)
+			subgrid := game.GetSubgrid(data[0]+1, data[1]+1, data[2]+1, data[3]+1)
 			fmt.Println("Sending submatrix:")
 			subgrid.Println()
 			buffer := SerializeMatrix(subgrid)

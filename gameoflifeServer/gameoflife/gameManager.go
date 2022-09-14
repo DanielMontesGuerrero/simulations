@@ -7,11 +7,11 @@ import (
 )
 
 type GameManager struct {
-	rows int
-	cols int
-	numOfNodes int
-	numDivsY int
-	numDivsX int
+	rows                int
+	cols                int
+	numOfNodes          int
+	numDivsY            int
+	numDivsX            int
 	isPaused            bool
 	updateRateMs        int64
 	lastUpdateTimestamp int64
@@ -27,8 +27,8 @@ func NewGameManager(rows, cols, numOfNodes int) *GameManager {
 	manager.rows = rows
 	manager.cols = cols
 	manager.numOfNodes = numOfNodes
-	for i := 1; i * i <= numOfNodes; i++ {
-		if numOfNodes % i == 0 {
+	for i := 1; i*i <= numOfNodes; i++ {
+		if numOfNodes%i == 0 {
 			manager.numDivsY = i
 			manager.numDivsX = numOfNodes / i
 		}
@@ -73,7 +73,7 @@ func (manager *GameManager) GetBorderIndexesOfNode(nodeId int) [4][3][4]int {
 	auxui := ui - 1
 	auxbi := bi + 1
 	if manager.shouldModuleIndexes {
-		upperLine = (upperLine + manager.rows) % manager.rows;
+		upperLine = (upperLine + manager.rows) % manager.rows
 		bottomLine = (bottomLine + manager.rows) % manager.rows
 		leftLine = (leftLine + manager.cols) % manager.cols
 		rightLine = (rightLine + manager.cols) % manager.cols
@@ -110,9 +110,9 @@ func (manager *GameManager) GetNodeIdByIndexes(i, j int) int {
 	if i < 0 || i >= manager.rows || j < 0 || j >= manager.cols {
 		return -1
 	}
-	rowIndex := i / (manager.rows /  manager.numDivsY)
+	rowIndex := i / (manager.rows / manager.numDivsY)
 	colIndex := j / (manager.cols / manager.numDivsX)
-	return rowIndex * manager.numDivsX + colIndex
+	return rowIndex*manager.numDivsX + colIndex
 }
 
 func (manager *GameManager) GetIndexGapByNodeId(nodeId int) (int, int) {
