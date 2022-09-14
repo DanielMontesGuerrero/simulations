@@ -7,22 +7,24 @@ import (
 	"github.com/DanielMontesGuerrero/simulations/gameoflifeServer/gameoflife"
 )
 
-func BaseHandler(connection net.Conn, manager *gameoflife.GameManager) bool {
+func BaseHandler(connection net.Conn, game *gameoflife.GameOfLife) bool {
 	for {
 		messageType, event, data := ReadPacket(connection)
 		switch messageType {
 		case MESSAGE_PING:
 			handlePing(connection, event, data)
 		case MESSAGE_EVENT:
-			handleEvent(connection, event, data, manager)
+			handleEvent(connection, event, data, game)
 		case MESSAGE_LOG:
-			manager.Println()
+			game.Println()
 			sendOkResponse(connection)
 		case MESSAGE_CLOSE:
 			sendOkResponse(connection)
 			return true
 		default:
-			fmt.Printf("Error recieving response\n")
+			fmt.Printf("Error recieving message\n")
+			sendBadResponse(connection)
+			return false
 		}
 	}
 }
@@ -49,29 +51,22 @@ func handlePing(connection net.Conn, event byte, buffer []byte) bool {
 	return true
 }
 
-func handleEvent(connection net.Conn, event byte, buffer []byte, manager *gameoflife.GameManager) bool {
+func handleEvent(connection net.Conn, event byte, buffer []byte, game *gameoflife.GameOfLife) bool {
 	switch event {
-	case EVENT_PAUSE:
-		manager.TogglePause()
-		sendOkResponse(connection)
 	case EVENT_MOUSE_CLICK:
 		data := BytesToInts(buffer)
 		if len(data) >= 2 {
-			manager.SetCell(data[0], data[1])
+			game.ToggleCell(data[0] + 1, data[1] + 1)
 			sendOkResponse(connection)
 		} else {
 			sendBadResponse(connection)
 		}
-	case EVENT_UPDATE_RATE_INCREASE:
-		manager.IncreaseUpdateRate()
-		sendOkResponse(connection)
-	case EVENT_UPDATE_RATE_DECREASE:
-		manager.DecreaseUpdateRate()
-		sendOkResponse(connection)
 	case EVENT_GET:
 		data := BytesToInts(buffer)
 		if len(data) >= 4 {
-			subgrid := manager.GetSubgrid(data[0], data[1], data[2], data[3])
+			subgrid := game.GetSubgrid(data[0] + 1, data[1] + 1, data[2] + 1, data[3] + 1)
+			fmt.Println("Sending submatrix:")
+			subgrid.Println()
 			buffer := SerializeMatrix(subgrid)
 			response := CreateResponsePacket(buffer)
 			WriteRaw(connection, response)
@@ -80,11 +75,14 @@ func handleEvent(connection net.Conn, event byte, buffer []byte, manager *gameof
 		}
 	case EVENT_SET_BORDERS:
 		top, bottom, left, right := DeserializeBorders(buffer)
-		manager.SetBorders(top, bottom, left, right)
+		game.SetBorders(top, bottom, left, right)
 		sendOkResponse(connection)
 	case EVENT_UPDATE:
-		manager.SingleUpdate()
+		game.Update()
 		sendOkResponse(connection)
+	default:
+		fmt.Printf("Error recieving event\n")
+		sendBadResponse(connection)
 	}
 	return true
 }

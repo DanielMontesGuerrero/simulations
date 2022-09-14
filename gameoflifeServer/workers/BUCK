@@ -6,6 +6,7 @@ go_library(
     deps = [
         "//gameoflifeServer/gameoflife:gameoflife",
         "//gameoflifeServer/connect:connect",
+        "//utilsgo:utilsgo"
     ],
     visibility = [
         "//...",

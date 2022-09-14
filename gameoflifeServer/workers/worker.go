@@ -1,4 +1,4 @@
-package gameoflife
+package workers
 
 import (
 	"github.com/DanielMontesGuerrero/simulations/gameoflifeServer/connect"
@@ -6,22 +6,22 @@ import (
 )
 
 type Worker struct {
-	manager gameoflife.GameManager
+	game gameoflife.GameOfLife
 	server  connect.Server
 }
 
 func NewWorker(rows int, cols int, host string, port int, protocol string) *Worker {
 	worker := new(Worker)
-	worker.manager = *gameoflife.NewGameManager(rows, cols)
+	worker.game = *gameoflife.NewGame(rows, cols)
 	worker.server = *connect.NewServer(host, port, protocol)
 	return worker
 }
 
 func (worker *Worker) Update() {
-	worker.manager.Update()
+	worker.game.Update()
 }
 
 func (worker *Worker) ListenAndServe() {
 	worker.server.Listen()
-	worker.server.Serve(&worker.manager)
+	worker.server.Serve(&worker.game)
 }

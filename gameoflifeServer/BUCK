@@ -1,8 +1,6 @@
 go_binary(
-    name = "runner",
-    srcs = [
-        "cmd/runner/main.go",
-    ],
+    name = "worker",
+    srcs = ["cmd/worker/main.go"],
     deps = [
         "//gameoflifeServer/workers:workers",
     ],
@@ -22,5 +20,13 @@ go_binary(
     deps = [
         "//gameoflifeServer/connect:connect",
         "//utilsgo:utilsgo",
+    ],
+)
+
+go_binary(
+    name = "orchestrator",
+    srcs = ["cmd/orchestartor/main.go"],
+    deps = [
+        "//gameoflifeServer/workers:workers",
     ],
 )

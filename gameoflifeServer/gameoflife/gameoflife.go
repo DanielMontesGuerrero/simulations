@@ -100,6 +100,14 @@ func (game *GameOfLife) SetBorders(top, bottom, left, right utilsgo.Vector) {
 	}
 	for i := 0; i < game.matrix.Cols; i++ {
 		game.matrix.Set(0, i, top.Get(i) == 1)
-		game.matrix.Set(game.matrix.Cols-1, i, top.Get(i) == 1)
+		game.matrix.Set(game.matrix.Cols-1, i, bottom.Get(i) == 1)
 	}
+}
+
+func (game *GameOfLife) ToggleCell(i, j int) {
+	game.matrix.Toggle(i + 1, j + 1)
+}
+
+func (game *GameOfLife) GetSubgrid(ui, di, lj, rj int) utilsgo.Matrix {
+	return *game.matrix.SubMatrix(ui, di, lj, rj)
 }

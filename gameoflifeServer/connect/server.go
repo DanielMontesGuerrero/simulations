@@ -28,6 +28,8 @@ func (server *Server) Listen() {
 	if server.listener == nil || err != nil {
 		fmt.Println("Listener is nil in Listen()")
 		panic(err)
+	} else {
+		fmt.Printf("Listening on port: %d...", server.port)
 	}
 }
 
@@ -35,7 +37,7 @@ func (server *Server) Close() {
 	server.listener.Close()
 }
 
-func (server *Server) Serve(manager *gameoflife.GameManager) {
+func (server *Server) Serve(game *gameoflife.GameOfLife) {
 	defer server.listener.Close()
 	for {
 		if server.listener == nil {
@@ -46,6 +48,6 @@ func (server *Server) Serve(manager *gameoflife.GameManager) {
 		if err != nil {
 			panic(err)
 		}
-		go BaseHandler(connection, manager)
+		go BaseHandler(connection, game)
 	}
 }

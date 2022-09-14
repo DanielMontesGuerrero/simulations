@@ -97,7 +97,8 @@ func WriteRaw(connection net.Conn, buffer []byte) {
 	for {
 		sentLen, err := connection.Write(buffer[totalSentLen:])
 		if err != nil {
-			fmt.Println("Error writing data", err)
+			fmt.Println("Error writing data:", err.Error())
+			break
 		}
 		totalSentLen += sentLen
 		if totalSentLen == len(buffer) {
