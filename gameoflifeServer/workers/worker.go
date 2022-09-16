@@ -77,4 +77,3 @@ func (worker *Worker) handleEvent(connection net.Conn, event byte, buffer []byte
 	}
 	return true
 }
-

@@ -5,7 +5,7 @@ import (
 	"net"
 )
 
-func BaseHandler(connection net.Conn, eventHandler func(connection net.Conn, event byte, buffer []byte)bool) bool {
+func BaseHandler(connection net.Conn, eventHandler func(connection net.Conn, event byte, buffer []byte) bool) bool {
 	defer wg.Done()
 	messageType, event, data := ReadPacket(connection)
 	switch messageType {

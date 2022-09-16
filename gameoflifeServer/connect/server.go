@@ -9,10 +9,10 @@ import (
 var wg sync.WaitGroup
 
 type Server struct {
-	listener net.Listener
-	host     string
-	port     int
-	protocol string
+	listener   net.Listener
+	host       string
+	port       int
+	protocol   string
 	ShouldStop bool
 }
 
@@ -42,7 +42,7 @@ func (server *Server) Close() {
 	fmt.Println("Closed server")
 }
 
-func (server *Server) Serve(eventHandler func(connection net.Conn, event byte, buffer []byte)bool) {
+func (server *Server) Serve(eventHandler func(connection net.Conn, event byte, buffer []byte) bool) {
 	for {
 		fmt.Println("ShouldStop:", server.ShouldStop)
 		if server.ShouldStop {

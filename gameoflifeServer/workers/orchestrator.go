@@ -17,9 +17,9 @@ type HostData struct {
 }
 
 type Orchestrator struct {
-	server connect.Server
-	clients []connect.Client
-	manager gameoflife.GameManager
+	server     connect.Server
+	clients    []connect.Client
+	manager    gameoflife.GameManager
 	shouldStop bool
 }
 
@@ -42,13 +42,12 @@ func (orch *Orchestrator) Run() {
 			fmt.Println("Stopped updating")
 			break
 		}
-		fmt.Println("updating")
 		orch.Update()
 	}
 }
 
 func (orch *Orchestrator) Update() {
-	if (orch.manager.ShouldUpdate()) {
+	if orch.manager.ShouldUpdate() {
 		orch.UpdateBorders()
 		for cliendId := 0; cliendId < len(orch.clients); cliendId++ {
 			orch.clients[cliendId].Send(connect.MESSAGE_EVENT, connect.EVENT_UPDATE, []byte{})
@@ -213,7 +212,7 @@ func (orch *Orchestrator) handleEvent(connection net.Conn, event byte, buffer []
 
 }
 
-func (orch *Orchestrator) ListenAndServe(){
+func (orch *Orchestrator) ListenAndServe() {
 	orch.server.Listen()
 	orch.server.Serve(orch.handleEvent)
 }

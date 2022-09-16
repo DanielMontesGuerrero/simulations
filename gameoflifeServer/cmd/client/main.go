@@ -9,29 +9,29 @@ import (
 
 var shouldStopOrchestrator bool
 
-func init(){
+func init() {
 	flag.BoolVar(&shouldStopOrchestrator, "stop", false, "If true, stops the orchestrator and the workers")
 	flag.Parse()
 }
 
-func sendLog(client connect.Client){
+func sendLog(client connect.Client) {
 	client.Send(connect.MESSAGE_EVENT, connect.EVENT_LOG, []byte{})
 	fmt.Println("Sent log")
 }
 
-func sendPause(client connect.Client){
+func sendPause(client connect.Client) {
 	client.Send(connect.MESSAGE_EVENT, connect.EVENT_PAUSE, []byte{})
 	fmt.Println("Sent pause")
 }
-func sendMouseClick(client connect.Client, i, j int){
+func sendMouseClick(client connect.Client, i, j int) {
 	client.Send(connect.MESSAGE_EVENT, connect.EVENT_MOUSE_CLICK, connect.IntsToBytes([]int{i, j}))
 	fmt.Println("Sent mouse_click")
 }
-func sendUpdateDecrease(client connect.Client){
+func sendUpdateDecrease(client connect.Client) {
 	client.Send(connect.MESSAGE_EVENT, connect.EVENT_UPDATE_RATE_DECREASE, []byte{})
 	fmt.Println("Sent Update decrease")
 }
-func sendUpdateIncrease(client connect.Client){
+func sendUpdateIncrease(client connect.Client) {
 	client.Send(connect.MESSAGE_EVENT, connect.EVENT_UPDATE_RATE_INCREASE, []byte{})
 	fmt.Println("Sent Update increase")
 }

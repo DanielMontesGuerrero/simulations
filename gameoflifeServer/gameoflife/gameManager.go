@@ -9,10 +9,10 @@ import (
 const EVENT_TOGGLE_CELL int = 1
 
 type Request struct {
-	Type int
-	RowUp int
-	RowDown int
-	ColLeft int
+	Type     int
+	RowUp    int
+	RowDown  int
+	ColLeft  int
 	ColRight int
 }
 
@@ -26,7 +26,7 @@ type GameManager struct {
 	updateRateMs        int64
 	lastUpdateTimestamp int64
 	shouldModuleIndexes bool
-	QueuedRequests []Request
+	QueuedRequests      []Request
 }
 
 func NewGameManager(rows, cols, numOfNodes int) *GameManager {

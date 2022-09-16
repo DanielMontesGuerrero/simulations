@@ -164,7 +164,7 @@ func DeserializeMatrix(packet []byte) utilsgo.Matrix {
 	for i := 0; i < rows; i++ {
 		for j := 0; j < cols; j += 32 {
 			val := 0
-			if len(packet) >= (i * numOfInts * 4 + j * 4 + 4) {
+			if len(packet) >= (i*numOfInts*4 + j*4 + 4) {
 				val = int(binary.LittleEndian.Uint32(packet[i*numOfInts*4+j*4 : i*numOfInts*4+j*4+4]))
 			}
 			for k := 0; k < 32; k++ {
@@ -203,7 +203,7 @@ func DeserializeVector(packet []byte) utilsgo.Vector {
 	packet = packet[4:]
 	for i := 0; i < size; i += 32 {
 		val := 0
-		if len(packet) >= (i / 32 * 4 + 4) {
+		if len(packet) >= (i/32*4 + 4) {
 			val = int(binary.LittleEndian.Uint32(packet[i/32*4 : i/32*4+4]))
 		}
 		for j := 0; j < 32; j++ {
