@@ -6,6 +6,16 @@ import (
 	"github.com/DanielMontesGuerrero/simulations/utilsgo"
 )
 
+const EVENT_TOGGLE_CELL int = 1
+
+type Request struct {
+	Type int
+	RowUp int
+	RowDown int
+	ColLeft int
+	ColRight int
+}
+
 type GameManager struct {
 	rows                int
 	cols                int
@@ -16,10 +26,7 @@ type GameManager struct {
 	updateRateMs        int64
 	lastUpdateTimestamp int64
 	shouldModuleIndexes bool
-}
-
-type UpdateRequest struct {
-	nodeId int
+	QueuedRequests []Request
 }
 
 func NewGameManager(rows, cols, numOfNodes int) *GameManager {
@@ -40,16 +47,9 @@ func NewGameManager(rows, cols, numOfNodes int) *GameManager {
 	return manager
 }
 
-func (manager *GameManager) Update() []UpdateRequest {
+func (manager *GameManager) ShouldUpdate() bool {
 	timeSinceLastUpdate := time.Now().Unix() - manager.lastUpdateTimestamp
-	requests := make([]UpdateRequest, manager.numOfNodes)
-	if !manager.isPaused && timeSinceLastUpdate >= manager.updateRateMs {
-		manager.lastUpdateTimestamp = time.Now().Unix()
-		for id := 0; id < manager.numOfNodes; id++ {
-			requests = append(requests, UpdateRequest{id})
-		}
-	}
-	return requests
+	return !manager.isPaused && timeSinceLastUpdate >= manager.updateRateMs
 }
 
 func (manager *GameManager) GetIndexesOfNode(nodeId int) (int, int, int, int) {
@@ -135,4 +135,12 @@ func (manager *GameManager) IncreaseUpdateRate() {
 
 func (manager *GameManager) DecreaseUpdateRate() {
 	manager.updateRateMs = utilsgo.Min(MAX_UPDATE_RATE_MS, manager.updateRateMs+SPEED_FACTOR)
+}
+
+func (manager *GameManager) SetCell(i, j int) {
+	request := Request{}
+	request.Type = EVENT_TOGGLE_CELL
+	request.RowUp = i
+	request.ColLeft = j
+	manager.QueuedRequests = append(manager.QueuedRequests, request)
 }

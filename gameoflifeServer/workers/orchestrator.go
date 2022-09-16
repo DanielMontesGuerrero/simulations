@@ -2,6 +2,8 @@ package workers
 
 import (
 	"fmt"
+	"net"
+	"os"
 
 	"github.com/DanielMontesGuerrero/simulations/gameoflifeServer/connect"
 	"github.com/DanielMontesGuerrero/simulations/gameoflifeServer/gameoflife"
@@ -15,13 +17,17 @@ type HostData struct {
 }
 
 type Orchestrator struct {
+	server connect.Server
 	clients []connect.Client
 	manager gameoflife.GameManager
+	shouldStop bool
 }
 
-func NewOrchestrator(rows, cols int, hosts []HostData) *Orchestrator {
+func NewOrchestrator(rows, cols int, host string, port int, protocol string, hosts []HostData) *Orchestrator {
 	orchestrator := new(Orchestrator)
+	orchestrator.shouldStop = false
 	orchestrator.clients = make([]connect.Client, len(hosts))
+	orchestrator.server = *connect.NewServer(host, port, protocol)
 	for i := 0; i < len(hosts); i++ {
 		orchestrator.clients[i] = *connect.NewClient(hosts[i].Host, hosts[i].Port, hosts[i].Protocol)
 	}
@@ -29,10 +35,61 @@ func NewOrchestrator(rows, cols int, hosts []HostData) *Orchestrator {
 	return orchestrator
 }
 
+func (orch *Orchestrator) Run() {
+	fmt.Println("Running...")
+	for {
+		if orch.shouldStop {
+			fmt.Println("Stopped updating")
+			break
+		}
+		fmt.Println("updating")
+		orch.Update()
+	}
+}
+
+func (orch *Orchestrator) Update() {
+	if (orch.manager.ShouldUpdate()) {
+		orch.UpdateBorders()
+		for cliendId := 0; cliendId < len(orch.clients); cliendId++ {
+			orch.clients[cliendId].Send(connect.MESSAGE_EVENT, connect.EVENT_UPDATE, []byte{})
+		}
+	}
+}
+
+func (orch *Orchestrator) TogglePause() {
+	orch.manager.TogglePause()
+}
+
+func (orch *Orchestrator) ToggleCell(i, j int) {
+	cliendId := orch.manager.GetNodeIdByIndexes(i, j)
+	dy, dx := orch.manager.GetIndexGapByNodeId(cliendId)
+	fmt.Println("cliendId:", cliendId)
+	orch.clients[cliendId].Send(connect.MESSAGE_EVENT, connect.EVENT_MOUSE_CLICK, connect.IntsToBytes([]int{i - dy, j - dx}))
+}
+
+func (orch *Orchestrator) ProcessQueuedEvents() {
+	if len(orch.manager.QueuedRequests) > 0 {
+		event := orch.manager.QueuedRequests[0]
+		orch.manager.QueuedRequests = orch.manager.QueuedRequests[1:]
+		switch event.Type {
+		case gameoflife.EVENT_TOGGLE_CELL:
+			orch.ToggleCell(event.RowUp, event.ColLeft)
+		}
+	}
+}
+
 func (orch *Orchestrator) UpdateBorders() {
 	for clientId := 0; clientId < len(orch.clients); clientId++ {
 		orch.updateBorder(clientId)
 	}
+}
+
+func (orch *Orchestrator) IncreaseUpdateRate() {
+	orch.manager.IncreaseUpdateRate()
+}
+
+func (orch *Orchestrator) DecreaseUpdateRate() {
+	orch.manager.DecreaseUpdateRate()
 }
 
 func (orch *Orchestrator) updateBorder(clientId int) {
@@ -98,7 +155,7 @@ func (orch *Orchestrator) requestBorder(borderIndexes [3][4]int) utilsgo.Vector 
 
 func (orch *Orchestrator) SendLog() {
 	for id := 0; id < len(orch.clients); id++ {
-		orch.clients[id].Send(connect.MESSAGE_LOG, 0, []byte{})
+		orch.clients[id].Send(connect.MESSAGE_EVENT, connect.EVENT_LOG, []byte{})
 	}
 }
 
@@ -108,6 +165,55 @@ func (orch *Orchestrator) SendClose() {
 	}
 }
 
-func (orch *Orchestrator) Close() {
+func (orch *Orchestrator) CloseAllClients() {
 	orch.SendClose()
+}
+
+func (orch *Orchestrator) Close() {
+	orch.shouldStop = true
+	orch.CloseAllClients()
+	orch.server.ShouldStop = true
+	fmt.Println("Closed orchestrator")
+	os.Exit(0)
+}
+
+func (orch *Orchestrator) handleEvent(connection net.Conn, event byte, buffer []byte) bool {
+	switch event {
+	case connect.EVENT_MOUSE_CLICK:
+		data := connect.BytesToInts(buffer)
+		if len(data) >= 2 {
+			orch.ToggleCell(data[0], data[1])
+			connect.SendOkResponse(connection)
+		} else {
+			connect.SendBadResponse(connection)
+		}
+	case connect.EVENT_UPDATE_RATE_DECREASE:
+		orch.DecreaseUpdateRate()
+		connect.SendOkResponse(connection)
+	case connect.EVENT_UPDATE_RATE_INCREASE:
+		orch.IncreaseUpdateRate()
+		connect.SendOkResponse(connection)
+	case connect.EVENT_PAUSE:
+		orch.TogglePause()
+		connect.SendOkResponse(connection)
+	case connect.EVENT_LOG:
+		orch.manager.Println()
+		orch.SendLog()
+		connect.SendOkResponse(connection)
+	case connect.MESSAGE_CLOSE:
+		connect.SendOkResponse(connection)
+		fmt.Println("Closing")
+		orch.Close()
+		fmt.Println("Closed")
+	default:
+		fmt.Printf("Error recieving event\n")
+		connect.SendBadResponse(connection)
+	}
+	return true
+
+}
+
+func (orch *Orchestrator) ListenAndServe(){
+	orch.server.Listen()
+	orch.server.Serve(orch.handleEvent)
 }

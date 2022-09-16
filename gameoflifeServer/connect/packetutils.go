@@ -27,7 +27,7 @@ func ReadPacket(conn net.Conn) (byte, byte, []byte) {
 	dataLen := int(binary.LittleEndian.Uint32(buffer[2:6]))
 	buffer = ReadRaw(conn, dataLen)
 	if len(buffer) < dataLen {
-		fmt.Printf("Expected readLen (%d) >= %d", len(buffer), dataLen)
+		fmt.Printf("Expected readLen (%d) >= %d\n", len(buffer), dataLen)
 		return MESSAGE_ERROR, 0, []byte{}
 	}
 	return messageType, event, buffer
@@ -66,13 +66,13 @@ func CreateResponsePacket(data []int) []byte {
 func ReadResponsePacket(conn net.Conn) ([]byte, int) {
 	buffer := ReadRaw(conn, 4)
 	if len(buffer) < 4 {
-		fmt.Printf("Expected readLen (%d) >= %d", len(buffer), 4)
+		fmt.Printf("Expected readLen (%d) >= %d\n", len(buffer), 4)
 		return []byte{}, 0
 	}
 	packetLen := int(binary.LittleEndian.Uint32(buffer))
 	buffer = ReadRaw(conn, packetLen)
 	if len(buffer) < packetLen {
-		fmt.Printf("Expected readLen (%d) >= %d", len(buffer), packetLen)
+		fmt.Printf("Expected readLen (%d) >= %d\n", len(buffer), packetLen)
 		return []byte{}, 0
 	}
 	return buffer, packetLen
@@ -82,7 +82,7 @@ func appendInt(buffer []byte, val int) []byte {
 	aux := new(bytes.Buffer)
 	err := binary.Write(aux, binary.LittleEndian, int32(val))
 	if err != nil {
-		fmt.Printf("Error appending int: %s", err.Error())
+		fmt.Printf("Error appending int: %s\n", err.Error())
 		return []byte{}
 	}
 	buffer = append(buffer, aux.Bytes()[:]...)
@@ -94,7 +94,7 @@ func WriteRaw(connection net.Conn, buffer []byte) {
 		return
 	}
 	totalSentLen := 0
-	for {
+	for i := 0; i < MAX_RETRIES; i++ {
 		sentLen, err := connection.Write(buffer[totalSentLen:])
 		if err != nil {
 			fmt.Println("Error writing data:", err.Error())
@@ -114,7 +114,7 @@ func ReadRaw(connection net.Conn, size int) []byte {
 	}
 	response := make([]byte, 0)
 	totalReadLen := 0
-	for {
+	for i := 0; i < MAX_RETRIES; i++ {
 		buffer := make([]byte, size-totalReadLen)
 		readLen, err := connection.Read(buffer)
 		if err != nil {
@@ -128,6 +128,7 @@ func ReadRaw(connection net.Conn, size int) []byte {
 			return response
 		}
 	}
+	return response
 }
 
 func SerializeMatrix(matrix utilsgo.Matrix) []int {
@@ -149,6 +150,9 @@ func SerializeMatrix(matrix utilsgo.Matrix) []int {
 }
 
 func DeserializeMatrix(packet []byte) utilsgo.Matrix {
+	if len(packet) < 8 {
+		return *utilsgo.New(0, 0)
+	}
 	rows := int(binary.LittleEndian.Uint32(packet[:4]))
 	cols := int(binary.LittleEndian.Uint32(packet[4:8]))
 	matrix := utilsgo.New(rows, cols)
@@ -159,7 +163,10 @@ func DeserializeMatrix(packet []byte) utilsgo.Matrix {
 	packet = packet[8:]
 	for i := 0; i < rows; i++ {
 		for j := 0; j < cols; j += 32 {
-			val := int(binary.LittleEndian.Uint32(packet[i*numOfInts*4+j*4 : i*numOfInts*4+j*4+4]))
+			val := 0
+			if len(packet) >= (i * numOfInts * 4 + j * 4 + 4) {
+				val = int(binary.LittleEndian.Uint32(packet[i*numOfInts*4+j*4 : i*numOfInts*4+j*4+4]))
+			}
 			for k := 0; k < 32; k++ {
 				matrix.Set(i, j+k, ((val>>k)&1) != 0)
 			}
@@ -188,11 +195,17 @@ func SerializeVector(vector utilsgo.Vector) []byte {
 }
 
 func DeserializeVector(packet []byte) utilsgo.Vector {
+	if len(packet) < 4 {
+		return *utilsgo.NewVector(0)
+	}
 	size := int(binary.LittleEndian.Uint32(packet[:4]))
 	vector := utilsgo.NewVector(size)
 	packet = packet[4:]
 	for i := 0; i < size; i += 32 {
-		val := int(binary.LittleEndian.Uint32(packet[i/32*4 : i/32*4+4]))
+		val := 0
+		if len(packet) >= (i / 32 * 4 + 4) {
+			val = int(binary.LittleEndian.Uint32(packet[i/32*4 : i/32*4+4]))
+		}
 		for j := 0; j < 32; j++ {
 			vector.Set(i+j, ((val>>j)&1) != 0)
 		}

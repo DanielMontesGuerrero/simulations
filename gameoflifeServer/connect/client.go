@@ -21,22 +21,25 @@ func NewClient(host string, port int, protocol string) *Client {
 }
 
 func (client *Client) Dial() net.Conn {
-	for {
-		conn, err := net.Dial(client.protocol, fmt.Sprintf("%s:%d", client.host, client.port))
-		if err == nil {
-			client.connection = conn
-			return conn
-		}
+	conn, err := net.DialTimeout(client.protocol, fmt.Sprintf("%s:%d", client.host, client.port), MAX_TIMEOUT)
+	if err == nil {
+		client.connection = conn
+		return conn
 	}
+	return nil
 }
 
 func (client *Client) Send(messageType byte, event byte, data []byte) ([]byte, int) {
-	if client.connection == nil {
-		client.connection = client.Dial()
+	connection := client.Dial()
+	if connection == nil {
+		return []byte{}, 0
 	}
+	defer connection.Close()
 	packet := CreatePacket(messageType, event, data)
-	WriteRaw(client.connection, packet)
-	return ReadResponsePacket(client.connection)
+	WriteRaw(connection, packet)
+	response, resLen := ReadResponsePacket(connection)
+	fmt.Println("Recieved response", response)
+	return response, resLen
 }
 
 func (client *Client) Close() {

@@ -1,66 +1,55 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 
 	"github.com/DanielMontesGuerrero/simulations/gameoflifeServer/connect"
-	"github.com/DanielMontesGuerrero/simulations/utilsgo"
 )
 
-func main() {
-	client := connect.NewClient("localhost", 8080, "tcp")
-	defer client.Close()
-	event := byte(7)
-	data := [6]int{1, 2, 3, 4, 5, 6}
-	response, resLen := client.Send(connect.MESSAGE_PING, event, connect.IntsToBytes(data[:]))
-	fmt.Println("Len: ", resLen)
-	fmt.Println("Response: ", resLen)
-	for i := 0; i < resLen; i++ {
-		fmt.Print(response[i], " ")
-	}
-	fmt.Println()
-	client.Send(connect.MESSAGE_LOG, 0, connect.IntsToBytes([]int{}))
+var shouldStopOrchestrator bool
+
+func init(){
+	flag.BoolVar(&shouldStopOrchestrator, "stop", false, "If true, stops the orchestrator and the workers")
+	flag.Parse()
+}
+
+func sendLog(client connect.Client){
+	client.Send(connect.MESSAGE_EVENT, connect.EVENT_LOG, []byte{})
 	fmt.Println("Sent log")
-	client.Send(connect.MESSAGE_EVENT, connect.EVENT_PAUSE, connect.IntsToBytes([]int{}))
+}
+
+func sendPause(client connect.Client){
+	client.Send(connect.MESSAGE_EVENT, connect.EVENT_PAUSE, []byte{})
 	fmt.Println("Sent pause")
-	client.Send(connect.MESSAGE_LOG, 0, connect.IntsToBytes([]int{}))
-	fmt.Println("Sent log")
-
-	client.Send(connect.MESSAGE_EVENT, connect.EVENT_PAUSE, connect.IntsToBytes([]int{}))
-	client.Send(connect.MESSAGE_LOG, 0, connect.IntsToBytes([]int{}))
-	fmt.Println("Sent log")
-	client.Send(connect.MESSAGE_EVENT, connect.EVENT_MOUSE_CLICK, connect.IntsToBytes([]int{0, 0}))
+}
+func sendMouseClick(client connect.Client, i, j int){
+	client.Send(connect.MESSAGE_EVENT, connect.EVENT_MOUSE_CLICK, connect.IntsToBytes([]int{i, j}))
 	fmt.Println("Sent mouse_click")
-	client.Send(connect.MESSAGE_LOG, 0, connect.IntsToBytes([]int{}))
-	fmt.Println("Sent log")
-
-	client.Send(connect.MESSAGE_EVENT, connect.EVENT_UPDATE_RATE_DECREASE, connect.IntsToBytes([]int{}))
+}
+func sendUpdateDecrease(client connect.Client){
+	client.Send(connect.MESSAGE_EVENT, connect.EVENT_UPDATE_RATE_DECREASE, []byte{})
 	fmt.Println("Sent Update decrease")
-	client.Send(connect.MESSAGE_LOG, 0, connect.IntsToBytes([]int{}))
-	fmt.Println("Sent log")
-	client.Send(connect.MESSAGE_EVENT, connect.EVENT_UPDATE_RATE_INCREASE, connect.IntsToBytes([]int{}))
+}
+func sendUpdateIncrease(client connect.Client){
+	client.Send(connect.MESSAGE_EVENT, connect.EVENT_UPDATE_RATE_INCREASE, []byte{})
 	fmt.Println("Sent Update increase")
-	client.Send(connect.MESSAGE_LOG, 0, connect.IntsToBytes([]int{}))
-	fmt.Println("Sent log")
+}
 
-	response, _ = client.Send(connect.MESSAGE_EVENT, connect.EVENT_GET, connect.IntsToBytes([]int{0, 5, 0, 5}))
-	fmt.Println("Sent get")
-	matrix := connect.DeserializeMatrix(response)
-	matrix.Println()
+func main() {
+	client := *connect.NewClient("localhost", 3000, "tcp")
 
-	vec := *utilsgo.NewVector(12)
-	vec.Set(0, true)
-	vec.Set(11, true)
-	packet := connect.SerializeBorders(vec, vec, vec, vec)
-	client.Send(connect.MESSAGE_EVENT, connect.EVENT_SET_BORDERS, packet)
-	fmt.Println("Sent borders")
-	client.Send(connect.MESSAGE_LOG, 0, connect.IntsToBytes([]int{}))
-	fmt.Println("Sent log")
+	sendLog(client)
+	sendMouseClick(client, 6, 6)
+	sendLog(client)
+	sendPause(client)
+	sendLog(client)
+	sendUpdateDecrease(client)
+	sendLog(client)
+	sendUpdateIncrease(client)
+	sendLog(client)
 
-	client.Send(connect.MESSAGE_EVENT, connect.EVENT_UPDATE, []byte{})
-	fmt.Println("Sent single update")
-	client.Send(connect.MESSAGE_LOG, 0, connect.IntsToBytes([]int{}))
-	fmt.Println("Sent log")
-
-	client.Send(connect.MESSAGE_CLOSE, 0, packet)
+	if shouldStopOrchestrator {
+		client.Send(connect.MESSAGE_CLOSE, 0, []byte{})
+	}
 }
