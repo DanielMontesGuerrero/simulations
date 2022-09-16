@@ -106,6 +106,11 @@ func (manager *GameManager) GetBorderIndexesOfNode(nodeId int) [4][3][4]int {
 	}
 }
 
+func (manager *GameManager) TranslateGlobalIndexToLocalIndex(nodeId, i, j int) (int, int) {
+	dy, dx := manager.GetIndexGapByNodeId(nodeId)
+	return i - dy, j - dx
+}
+
 func (manager *GameManager) GetNodeIdByIndexes(i, j int) int {
 	if i < 0 || i >= manager.rows || j < 0 || j >= manager.cols {
 		return -1

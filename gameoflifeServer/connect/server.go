@@ -44,7 +44,6 @@ func (server *Server) Close() {
 
 func (server *Server) Serve(eventHandler func(connection net.Conn, event byte, buffer []byte) bool) {
 	for {
-		fmt.Println("ShouldStop:", server.ShouldStop)
 		if server.ShouldStop {
 			fmt.Println("Stopped serving")
 			server.Close()

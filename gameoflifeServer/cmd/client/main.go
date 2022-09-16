@@ -23,17 +23,26 @@ func sendPause(client connect.Client) {
 	client.Send(connect.MESSAGE_EVENT, connect.EVENT_PAUSE, []byte{})
 	fmt.Println("Sent pause")
 }
+
 func sendMouseClick(client connect.Client, i, j int) {
 	client.Send(connect.MESSAGE_EVENT, connect.EVENT_MOUSE_CLICK, connect.IntsToBytes([]int{i, j}))
 	fmt.Println("Sent mouse_click")
 }
+
 func sendUpdateDecrease(client connect.Client) {
 	client.Send(connect.MESSAGE_EVENT, connect.EVENT_UPDATE_RATE_DECREASE, []byte{})
 	fmt.Println("Sent Update decrease")
 }
+
 func sendUpdateIncrease(client connect.Client) {
 	client.Send(connect.MESSAGE_EVENT, connect.EVENT_UPDATE_RATE_INCREASE, []byte{})
 	fmt.Println("Sent Update increase")
+}
+
+func sendGetSubMatrix(client connect.Client, ui, bi, lj, rj int) {
+	buffer, _ := client.Send(connect.MESSAGE_EVENT, connect.EVENT_GET, connect.IntsToBytes([]int{ui, bi, lj, rj}))
+	matrix := connect.DeserializeMatrix(buffer)
+	matrix.Println()
 }
 
 func main() {
@@ -48,6 +57,9 @@ func main() {
 	sendLog(client)
 	sendUpdateIncrease(client)
 	sendLog(client)
+	sendGetSubMatrix(client, 2, 7, 2, 7)
+	sendLog(client)
+	sendGetSubMatrix(client, 0, 9, 0, 9)
 
 	if shouldStopOrchestrator {
 		client.Send(connect.MESSAGE_CLOSE, 0, []byte{})

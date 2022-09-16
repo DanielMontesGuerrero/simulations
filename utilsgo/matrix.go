@@ -74,3 +74,16 @@ func (matrix *Matrix) Println() {
 	}
 	fmt.Print("\n")
 }
+
+func (matrix *Matrix) SetSubMatrix(offsetI, offsetJ int, auxMatrix *Matrix) {
+	for i := 0; i < auxMatrix.Rows; i++ {
+		if offsetI+i >= matrix.Rows {
+			continue
+		}
+		for j := 0; j < auxMatrix.Cols; j++ {
+			if offsetJ+j < matrix.Cols {
+				matrix.Set(offsetI+i, offsetJ+j, auxMatrix.Get(i, j) == 1)
+			}
+		}
+	}
+}

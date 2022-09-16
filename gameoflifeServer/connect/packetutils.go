@@ -131,7 +131,7 @@ func ReadRaw(connection net.Conn, size int) []byte {
 	return response
 }
 
-func SerializeMatrix(matrix utilsgo.Matrix) []int {
+func SerializeMatrix(matrix *utilsgo.Matrix) []int {
 	packet := make([]int, 0)
 	packet = append(packet, matrix.Rows)
 	packet = append(packet, matrix.Cols)
@@ -175,7 +175,7 @@ func DeserializeMatrix(packet []byte) utilsgo.Matrix {
 	return *matrix
 }
 
-func SerializeVector(vector utilsgo.Vector) []byte {
+func SerializeVector(vector *utilsgo.Vector) []byte {
 	data := make([]byte, 0)
 	data = appendInt(data, vector.Size)
 	numOfInts := vector.Size / 32
@@ -213,7 +213,7 @@ func DeserializeVector(packet []byte) utilsgo.Vector {
 	return *vector
 }
 
-func SerializeBorders(top, bottom, left, right utilsgo.Vector) []byte {
+func SerializeBorders(top, bottom, left, right *utilsgo.Vector) []byte {
 	data := SerializeVector(top)
 	data = append(data, SerializeVector(bottom)...)
 	data = append(data, SerializeVector(left)...)
