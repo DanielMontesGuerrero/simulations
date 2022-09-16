@@ -1,0 +1,14 @@
+go_library(
+    name = "workers",
+    srcs = glob([
+        "*.go",
+    ]),
+    deps = [
+        "//gameoflifeServer/gameoflife:gameoflife",
+        "//gameoflifeServer/connect:connect",
+        "//utilsgo:utilsgo"
+    ],
+    visibility = [
+        "//...",
+    ],
+)

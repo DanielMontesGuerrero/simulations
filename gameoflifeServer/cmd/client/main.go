@@ -1,20 +1,67 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 
 	"github.com/DanielMontesGuerrero/simulations/gameoflifeServer/connect"
 )
 
+var shouldStopOrchestrator bool
+
+func init() {
+	flag.BoolVar(&shouldStopOrchestrator, "stop", false, "If true, stops the orchestrator and the workers")
+	flag.Parse()
+}
+
+func sendLog(client connect.Client) {
+	client.Send(connect.MESSAGE_EVENT, connect.EVENT_LOG, []byte{})
+	fmt.Println("Sent log")
+}
+
+func sendPause(client connect.Client) {
+	client.Send(connect.MESSAGE_EVENT, connect.EVENT_PAUSE, []byte{})
+	fmt.Println("Sent pause")
+}
+
+func sendMouseClick(client connect.Client, i, j int) {
+	client.Send(connect.MESSAGE_EVENT, connect.EVENT_MOUSE_CLICK, connect.IntsToBytes([]int{i, j}))
+	fmt.Println("Sent mouse_click")
+}
+
+func sendUpdateDecrease(client connect.Client) {
+	client.Send(connect.MESSAGE_EVENT, connect.EVENT_UPDATE_RATE_DECREASE, []byte{})
+	fmt.Println("Sent Update decrease")
+}
+
+func sendUpdateIncrease(client connect.Client) {
+	client.Send(connect.MESSAGE_EVENT, connect.EVENT_UPDATE_RATE_INCREASE, []byte{})
+	fmt.Println("Sent Update increase")
+}
+
+func sendGetSubMatrix(client connect.Client, ui, bi, lj, rj int) {
+	buffer, _ := client.Send(connect.MESSAGE_EVENT, connect.EVENT_GET, connect.IntsToBytes([]int{ui, bi, lj, rj}))
+	matrix := connect.DeserializeMatrix(buffer)
+	matrix.Println()
+}
+
 func main() {
-	client := connect.NewClient("localhost", 8080, "tcp")
-	event := byte(7)
-	data := [6]int{1, 2, 3, 4, 5, 6}
-	response, resLen := client.Send(connect.MESSAGE_PING, event, data[:])
-	fmt.Println("Len: ", resLen)
-	fmt.Println("Response: ", resLen)
-	for i := 0; i < resLen; i++ {
-		fmt.Print(response[i], " ")
+	client := *connect.NewClient("localhost", 3000, "tcp")
+
+	sendLog(client)
+	sendMouseClick(client, 6, 6)
+	sendLog(client)
+	sendPause(client)
+	sendLog(client)
+	sendUpdateDecrease(client)
+	sendLog(client)
+	sendUpdateIncrease(client)
+	sendLog(client)
+	sendGetSubMatrix(client, 2, 7, 2, 7)
+	sendLog(client)
+	sendGetSubMatrix(client, 0, 9, 0, 9)
+
+	if shouldStopOrchestrator {
+		client.Send(connect.MESSAGE_CLOSE, 0, []byte{})
 	}
-	fmt.Println()
 }

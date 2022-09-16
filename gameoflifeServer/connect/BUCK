@@ -2,4 +2,8 @@ go_library(
     name = "connect",
     srcs = glob(["*.go"]),
     visibility = ["//..."],
+    deps = [
+        "//gameoflifeServer/gameoflife:gameoflife",
+        "//utilsgo:utilsgo",
+    ],
 )

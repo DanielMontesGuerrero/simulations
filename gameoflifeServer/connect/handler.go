@@ -5,27 +5,42 @@ import (
 	"net"
 )
 
-func BaseHandler(connection net.Conn) bool {
-	buffer := ReadRaw(connection)
-	messageType, event, data := ReadPacket(buffer, len(buffer))
+func BaseHandler(connection net.Conn, eventHandler func(connection net.Conn, event byte, buffer []byte) bool) bool {
+	defer wg.Done()
+	messageType, event, data := ReadPacket(connection)
 	switch messageType {
 	case MESSAGE_PING:
-		return handlePing(connection, event, data)
+		handlePing(connection, event, data)
+	case MESSAGE_EVENT:
+		eventHandler(connection, event, data)
+	case MESSAGE_CLOSE:
+		eventHandler(connection, MESSAGE_CLOSE, data)
 	default:
-		fmt.Printf("Error recieving response\n")
+		fmt.Printf("Error recieving message\n")
+		SendBadResponse(connection)
+		return false
 	}
-	return false
+	return true
 }
 
-func handlePing(connection net.Conn, event byte, data []int) bool {
+func SendOkResponse(connection net.Conn) {
+	WriteRaw(connection, CreateResponsePacket([]int{}))
+}
+
+func SendBadResponse(connection net.Conn) {
+	WriteRaw(connection, CreateResponsePacket([]int{}))
+}
+
+func handlePing(connection net.Conn, event byte, buffer []byte) bool {
+	data := BytesToInts(buffer)
 	fmt.Println("Event: ", event)
 	fmt.Println("Data:")
 	for i := 0; i < len(data); i++ {
 		fmt.Print(data[i], " ")
 	}
 	fmt.Println("")
-	buffer := [3]int{1, 2, 3}
-	response := CreateResponsePacket(buffer[:])
+	aux := [3]int{1, 2, 3}
+	response := CreateResponsePacket(aux[:])
 	WriteRaw(connection, response)
 	return true
 }

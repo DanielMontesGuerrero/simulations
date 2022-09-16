@@ -1,0 +1,17 @@
+name: lint
+on: [push, pull_request]
+jobs:
+  cpplint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-python@v1
+      - run: pip install cpplint
+      - run: cpplint --recursive .
+  golint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: Jerome1337/gofmt-action@v1.0.4
+        with:
+          gofmt-flags: '-l -d'

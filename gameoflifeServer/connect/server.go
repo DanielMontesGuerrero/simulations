@@ -3,13 +3,17 @@ package connect
 import (
 	"fmt"
 	"net"
+	"sync"
 )
 
+var wg sync.WaitGroup
+
 type Server struct {
-	listener net.Listener
-	host     string
-	port     int
-	protocol string
+	listener   net.Listener
+	host       string
+	port       int
+	protocol   string
+	ShouldStop bool
 }
 
 func NewServer(host string, port int, protocol string) *Server {
@@ -17,34 +21,44 @@ func NewServer(host string, port int, protocol string) *Server {
 	server.host = host
 	server.port = port
 	server.protocol = protocol
+	server.ShouldStop = false
 	return server
 }
 
-func (server Server) ListenAndServe(handler func(net.Conn) bool) {
-	var err any
+func (server *Server) Listen() {
+	var err error
 	server.listener, err = net.Listen(server.protocol, fmt.Sprintf("%s:%d", server.host, server.port))
 	if server.listener == nil || err != nil {
 		fmt.Println("Listener is nil in Listen()")
 		panic(err)
+	} else {
+		fmt.Printf("Listening on port: %d...", server.port)
 	}
-	server.Serve(BaseHandler)
 }
 
-func (server Server) Close() {
+func (server *Server) Close() {
+	wg.Wait()
 	server.listener.Close()
+	fmt.Println("Closed server")
 }
 
-func (server Server) Serve(handler func(conn net.Conn) bool) {
-	defer server.listener.Close()
+func (server *Server) Serve(eventHandler func(connection net.Conn, event byte, buffer []byte) bool) {
 	for {
+		if server.ShouldStop {
+			fmt.Println("Stopped serving")
+			server.Close()
+			break
+		}
 		if server.listener == nil {
 			fmt.Println("Listener is nil in Serve()")
 			panic(server.listener)
 		}
 		connection, err := server.listener.Accept()
 		if err != nil {
-			panic(err)
+			fmt.Printf("Error accepting connection: %s\n", err.Error())
+			continue
 		}
-		go handler(connection)
+		wg.Add(1)
+		go BaseHandler(connection, eventHandler)
 	}
 }
