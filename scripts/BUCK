@@ -1,0 +1,4 @@
+sh_binary(
+    name = "run_orchestrator",
+    main = "run_orchestrator.sh",
+)
