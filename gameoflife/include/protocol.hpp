@@ -1,10 +1,11 @@
 #pragma once
 
 #include <sys/socket.h>
+
 #include <string>
 
 namespace Protocol {
-const std::string HOST = "127.0.0.1";
+const char HOST[] = "127.0.0.1";
 const int PORT = 3000;
 const int TYPE = SOCK_STREAM;
 
@@ -21,4 +22,4 @@ const char EVENT_GET = 5;
 const char EVENT_SET_BORDERS = 6;
 const char EVENT_UPDATE = 7;
 const char EVENT_LOG = 8;
-};
+};  // namespace Protocol

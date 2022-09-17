@@ -19,7 +19,7 @@ GameOfLife::GameOfLife(int rows, int cols,
   }
 }
 
-GameOfLife::GameOfLife(): matrix(0, 0) {
+GameOfLife::GameOfLife() : matrix(0, 0) {
   rule = {};
   neighborhood_diffs = {};
 }

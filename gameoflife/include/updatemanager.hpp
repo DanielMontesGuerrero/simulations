@@ -17,4 +17,3 @@ struct UpdateManager {
 void handle_events(UpdateManager* manager, SDL_bool* quit,
                    GameHandler* gamehandler, MousePointer* mpointer,
                    SDL_Rect* source);
-

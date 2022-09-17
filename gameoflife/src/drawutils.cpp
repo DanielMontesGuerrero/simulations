@@ -8,24 +8,24 @@
 #include "utilscpp/drawers.hpp"
 #include "utilscpp/matrix.hpp"
 
-void draw(SDL_Renderer* renderer, GameHandler& gamehandler) {
-  if (gamehandler.is_executed_locally) {
-    draw(renderer, gamehandler.gameoflife.matrix, 0, 0);
-  }
-  else {
-    while(!gamehandler.pending_updates.empty()){
-      auto submatrix = gamehandler.pending_updates.front();
-      gamehandler.pending_updates.pop();
+void draw(SDL_Renderer* renderer, GameHandler* gamehandler) {
+  if (gamehandler->is_executed_locally) {
+    draw(renderer, gamehandler->gameoflife.matrix, 0, 0);
+  } else {
+    while (!gamehandler->pending_updates.empty()) {
+      auto submatrix = gamehandler->pending_updates.front();
+      gamehandler->pending_updates.pop();
       draw(renderer, submatrix.matrix, submatrix.x, submatrix.y);
-      if(gamehandler.pending_updates.empty()){
-        gamehandler.pending_updates.push(submatrix);
+      if (gamehandler->pending_updates.empty()) {
+        gamehandler->pending_updates.push(submatrix);
         break;
       }
     }
   }
 }
 
-void draw(SDL_Renderer* renderer, const Matrix& matrix, int offset_x, int offset_y) {
+void draw(SDL_Renderer* renderer, const Matrix& matrix, int offset_x,
+          int offset_y) {
   // draw cells
   SDL_SetRenderDrawColor(renderer, Color::GRID_CELL_ALIVE.r,
                          Color::GRID_CELL_ALIVE.g, Color::GRID_CELL_ALIVE.b,
@@ -61,7 +61,7 @@ void draw(SDL_Renderer* renderer, const Matrix& matrix, int offset_x, int offset
 }
 
 void draw(SDL_Renderer* renderer, SDL_Texture* texture, SDL_Rect source,
-          SDL_Rect dest, GameHandler& gamehandler,
+          SDL_Rect dest, GameHandler* gamehandler,
           const MousePointer& mpointer) {
   // clear texture
   SDL_SetRenderTarget(renderer, texture);

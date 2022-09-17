@@ -40,7 +40,8 @@ int main() {
 
   SDL_SetWindowTitle(window, "Game of life");
 
-  GameHandler gamehandler(Config::GRID_HEIGHT, Config::GRID_WIDTH, Config::SHOUD_EXECUTE_LOCALLY);
+  GameHandler gamehandler(Config::GRID_HEIGHT, Config::GRID_WIDTH,
+                          Config::SHOUD_EXECUTE_LOCALLY);
   UpdateManager manager;
   manager.last_update_timestamp = clock();
   MousePointer mpointer(0, 0, 5);
@@ -55,17 +56,17 @@ int main() {
       manager.last_update_timestamp = clock();
       int x, y, w, h;
       std::tie(x, y) = translate_coords_from_rect_to_matrix(
-            source.w, source.h, source.x, source.y, Config::WIDTH,
-            Config::HEIGHT, 0, 0, Config::CELL_SIZE);
+          source.w, source.h, source.x, source.y, Config::WIDTH, Config::HEIGHT,
+          0, 0, Config::CELL_SIZE);
       std::tie(w, h) = translate_coords_from_rect_to_matrix(
-            source.w, source.h, source.x, source.y, Config::WIDTH,
-            Config::HEIGHT, source.w, source.h, Config::CELL_SIZE);
+          source.w, source.h, source.x, source.y, Config::WIDTH, Config::HEIGHT,
+          source.w, source.h, Config::CELL_SIZE);
       gamehandler.update(x, y, w - x, h - y);
       manager.should_render = true;
     }
 
     if (manager.should_render) {
-      draw(renderer, texture, source, dest, gamehandler, mpointer);
+      draw(renderer, texture, source, dest, &gamehandler, mpointer);
       manager.should_render = false;
     }
   }
