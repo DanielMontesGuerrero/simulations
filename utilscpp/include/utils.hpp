@@ -1,8 +1,10 @@
 #pragma once
 
 #include <utility>
+#include <tuple>
 
 using std::pair;
+using std::tuple;
 
 struct Offset {
   int left, right, top, bottom;
@@ -22,3 +24,5 @@ pair<int, int> translate_coords_from_rect_to_texture(int rect_w, int rect_h,
                                                      int texture_w,
                                                      int texture_h, int x,
                                                      int y);
+
+pair<int,int> translate_coords_from_rect_to_matrix(int rect_w, int rect_h, int offset_x, int offset_y, int texture_w, int texture_h, int x, int y, int cell_size);
