@@ -55,6 +55,13 @@ func (orch *Orchestrator) Update() {
 	}
 }
 
+func (orch *Orchestrator) ForceUpdate() {
+	orch.UpdateBorders()
+	for cliendId := 0; cliendId < len(orch.clients); cliendId++ {
+		orch.clients[cliendId].Send(connect.MESSAGE_EVENT, connect.EVENT_UPDATE, []byte{})
+	}
+}
+
 func (orch *Orchestrator) TogglePause() {
 	orch.manager.TogglePause()
 }
@@ -62,7 +69,6 @@ func (orch *Orchestrator) TogglePause() {
 func (orch *Orchestrator) ToggleCell(i, j int) {
 	cliendId := orch.manager.GetNodeIdByIndexes(i, j)
 	dy, dx := orch.manager.GetIndexGapByNodeId(cliendId)
-	fmt.Println("cliendId:", cliendId)
 	orch.clients[cliendId].Send(connect.MESSAGE_EVENT, connect.EVENT_MOUSE_CLICK, connect.IntsToBytes([]int{i - dy, j - dx}))
 }
 
@@ -97,10 +103,6 @@ func (orch *Orchestrator) updateBorder(clientId int) {
 	for i := 0; i < 4; i++ {
 		borders[i] = orch.requestBorder(borderIndexes[i])
 	}
-	fmt.Printf("Sending borders to node %d\n", clientId)
-	for i := 0; i < 4; i++ {
-		borders[i].Println()
-	}
 	orch.clients[clientId].Send(connect.MESSAGE_EVENT, connect.EVENT_SET_BORDERS, connect.SerializeBorders(&borders[0], &borders[1], &borders[2], &borders[3]))
 }
 
@@ -125,11 +127,8 @@ func (orch *Orchestrator) requestBorder(borderIndexes [3][4]int) utilsgo.Vector 
 		}
 		requestClientId := orch.manager.GetNodeIdByIndexes(borderIndexes[i][0], borderIndexes[i][2])
 		if requestClientId != -1 {
-			fmt.Println("RequestClient:", requestClientId)
-			fmt.Println("Requesting global submatrix:", borderIndexes[i])
 			borderIndexes[i][0], borderIndexes[i][2] = orch.manager.TranslateGlobalIndexToLocalIndex(requestClientId, borderIndexes[i][0], borderIndexes[i][2])
 			borderIndexes[i][1], borderIndexes[i][3] = orch.manager.TranslateGlobalIndexToLocalIndex(requestClientId, borderIndexes[i][1], borderIndexes[i][3])
-			fmt.Println("Requesting local submatrix:", borderIndexes[i])
 			buffer, _ := orch.clients[requestClientId].Send(connect.MESSAGE_EVENT, connect.EVENT_GET, connect.IntsToBytes(borderIndexes[i][:]))
 			aux = utilsgo.MatrixToVector(connect.DeserializeMatrix(buffer))
 			if aux.Size != auxLen {
@@ -139,8 +138,6 @@ func (orch *Orchestrator) requestBorder(borderIndexes [3][4]int) utilsgo.Vector 
 		} else {
 			aux = *utilsgo.NewVector(auxLen)
 		}
-		fmt.Printf("Recieved vector: ")
-		aux.Println()
 		for j := 0; j < auxLen; j++ {
 			vec.Set(currSize+j, aux.Get(j) == 1)
 		}
@@ -168,24 +165,16 @@ func (orch *Orchestrator) GetSubmatrix(ui, bi, lj, rj int) utilsgo.Matrix {
 			if rj < currRj {
 				currRj = rj
 			}
-			indexes := []int{currUi, currBi, currLj, currRj}
-			fmt.Printf("Requesting to client %d\n", clientId)
-			fmt.Println("global indexes:", indexes)
 			localCurrUi, localCurrLj := orch.manager.TranslateGlobalIndexToLocalIndex(clientId, currUi, currLj)
 			localCurrBi, localCurrRj := orch.manager.TranslateGlobalIndexToLocalIndex(clientId, currBi, currRj)
-			indexes = []int{localCurrUi, localCurrBi, localCurrLj, localCurrRj}
-			fmt.Println("local indexes:", indexes)
+			indexes := []int{localCurrUi, localCurrBi, localCurrLj, localCurrRj}
 			buffer, _ := orch.clients[clientId].Send(connect.MESSAGE_EVENT, connect.EVENT_GET, connect.IntsToBytes(indexes))
 			auxMatrix := connect.DeserializeMatrix(buffer)
-			fmt.Println("Recieved matrix:")
-			auxMatrix.Println()
 			matrix.SetSubMatrix(currUi-ui, currLj-lj, &auxMatrix)
 			j = currRj + 1
 		}
 		i = currBi + 1
 	}
-	fmt.Println("Built matrix")
-	matrix.Println()
 	return *matrix
 }
 
@@ -238,10 +227,7 @@ func (orch *Orchestrator) handleEvent(connection net.Conn, event byte, buffer []
 		connect.SendOkResponse(connection)
 	case connect.MESSAGE_CLOSE:
 		connect.SendOkResponse(connection)
-		fmt.Println("Closing")
 		orch.Close()
-		fmt.Println("Closed")
-
 	case connect.EVENT_GET:
 		data := connect.BytesToInts(buffer)
 		matrix := *utilsgo.New(0, 0)
@@ -250,6 +236,9 @@ func (orch *Orchestrator) handleEvent(connection net.Conn, event byte, buffer []
 		}
 		packet := connect.CreateResponsePacket(connect.SerializeMatrix(&matrix))
 		connect.WriteRaw(connection, packet)
+	case connect.EVENT_UPDATE:
+		orch.ForceUpdate()
+		connect.SendOkResponse(connection)
 	default:
 		fmt.Printf("Error recieving event\n")
 		connect.SendBadResponse(connection)

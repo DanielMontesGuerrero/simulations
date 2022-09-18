@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ostream>
 #include <vector>
 
 using std::vector;
@@ -21,3 +22,5 @@ class Matrix {
  private:
   vector<vector<int>> grid;
 };
+
+std::ostream& operator<<(std::ostream& os, const Matrix& matrix);

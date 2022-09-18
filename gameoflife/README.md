@@ -1,5 +1,7 @@
 # Conway's Game Of Life
 
+![](../doc/img/board.jpg)
+
 ## Uso
 En la raíz del projecto ejecuta:
 
@@ -19,3 +21,22 @@ buck run gameoflife
 - f: Aumentar velocidad de animación
 - s: Disminuir velocidad de animación
 - u: Forzar actualización
+- r: Forzar redibujado
+
+## Modo de ejecución
+### Ejecución local
+La configuración necesaria del archivo [config.hpp](https://github.com/DanielMontesGuerrero/simulations/blob/main/gameoflife/include/config.hpp) para ejecutarlo en modo local es:
+```cpp
+const bool SHOULD_EXECUTE_LOCALLY = true;
+```
+
+### Ejecución distribuida
+La configuración necesaria del archivo [config.hpp](https://github.com/DanielMontesGuerrero/simulations/blob/main/gameoflife/include/config.hpp) para ejecutarlo en modo distribuido es:
+```cpp
+const bool SHOULD_EXECUTE_LOCALLY = false;
+//...
+const bool IS_ORCHESTRATOR_STANDALONE = false;
+```
+
+#### Ejecución del orquestrador y los nodos worker
+TBD...

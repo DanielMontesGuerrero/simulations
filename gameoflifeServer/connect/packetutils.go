@@ -102,7 +102,6 @@ func WriteRaw(connection net.Conn, buffer []byte) {
 		}
 		totalSentLen += sentLen
 		if totalSentLen == len(buffer) {
-			fmt.Printf("Sent %d total bytes\n", len(buffer))
 			break
 		}
 	}
@@ -124,7 +123,6 @@ func ReadRaw(connection net.Conn, size int) []byte {
 		totalReadLen += readLen
 		response = append(response, buffer...)
 		if totalReadLen == size {
-			fmt.Printf("Read %d total bytes\n", size)
 			return response
 		}
 	}

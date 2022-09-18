@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+#include "gameoflife/config.hpp"
 #include "gameoflife/gameoflife.hpp"
 #include "gameoflife/protocol.hpp"
 
@@ -21,17 +22,20 @@ GameHandler::GameHandler(int rows, int cols, bool is_executed_locally)
   }
 }
 
-void GameHandler::update(int x, int y, int w, int h) {
+void GameHandler::update() {
+  if (is_executed_locally) {
+    gameoflife.update();
+  } else if (!Config::IS_ORCHESTRATOR_STANDALONE) {
+    send_update_message();
+  }
+}
+
+void GameHandler::send_get_message(int x, int y, int w, int h) {
   last_x = x;
   last_y = y;
   last_w = w;
   last_h = h;
-  if (is_executed_locally) {
-    gameoflife.update();
-  } else {
-    cerr << "sending get request" << endl;
-    cerr << "requesting submatrix:" << endl;
-    cerr << y << ' ' << y + h - 1 << ' ' << x << ' ' << x + w - 1 << endl;
+  if (!is_executed_locally) {
     auto buffer =
         client.send_message(Protocol::MESSAGE_EVENT, Protocol::EVENT_GET,
                             vector<int>{y, y + h - 1, x, x + w - 1});
@@ -40,7 +44,9 @@ void GameHandler::update(int x, int y, int w, int h) {
   }
 }
 
-void GameHandler::update() { update(last_x, last_y, last_w, last_h); }
+void GameHandler::send_get_message() {
+  send_get_message(last_x, last_y, last_w, last_h);
+}
 
 void GameHandler::on_click(int i, int j) {
   if (is_executed_locally) {
@@ -53,21 +59,18 @@ void GameHandler::on_click(int i, int j) {
 
 void GameHandler::toggle_pause() {
   if (is_executed_locally) return;
-  cerr << "Sending pause request" << endl;
   client.send_message(Protocol::MESSAGE_EVENT, Protocol::EVENT_PAUSE,
                       vector<char>{});
 }
 
 void GameHandler::increase_update_rate() {
   if (is_executed_locally) return;
-  cerr << "Sending increase_update_rate request" << endl;
   client.send_message(Protocol::MESSAGE_EVENT,
                       Protocol::EVENT_UPDATE_RATE_INCREASE, vector<char>{});
 }
 
 void GameHandler::decrease_update_rate() {
   if (is_executed_locally) return;
-  cerr << "Sending decrease_update_rate request" << endl;
   client.send_message(Protocol::MESSAGE_EVENT,
                       Protocol::EVENT_UPDATE_RATE_DECREASE, vector<char>{});
 }
@@ -75,4 +78,10 @@ void GameHandler::decrease_update_rate() {
 void GameHandler::close_server() {
   if (is_executed_locally) return;
   client.send_message(Protocol::MESSAGE_CLOSE, 0, vector<char>{});
+}
+
+void GameHandler::send_update_message() {
+  if (is_executed_locally) return;
+  client.send_message(Protocol::MESSAGE_EVENT, Protocol::EVENT_UPDATE,
+                      vector<char>{});
 }

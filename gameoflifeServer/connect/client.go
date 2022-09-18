@@ -38,7 +38,6 @@ func (client *Client) Send(messageType byte, event byte, data []byte) ([]byte, i
 	packet := CreatePacket(messageType, event, data)
 	WriteRaw(connection, packet)
 	response, resLen := ReadResponsePacket(connection)
-	fmt.Println("Recieved response", response)
 	return response, resLen
 }
 

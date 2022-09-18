@@ -1,7 +1,6 @@
 package gameoflife
 
 import (
-	"fmt"
 	"math/rand"
 
 	"github.com/DanielMontesGuerrero/simulations/utilsgo"
@@ -48,7 +47,7 @@ func NewGame(rows int, cols int) *GameOfLife {
 }
 
 func (game *GameOfLife) Update() {
-	prevMatrix := game.matrix
+	prevMatrix := game.matrix.Copy()
 	for i := 1; i < game.matrix.Rows-1; i++ {
 		for j := 1; j < game.matrix.Cols-1; j++ {
 			cnt := game.GetNeighborhoodCount(i, j, prevMatrix)
@@ -86,14 +85,6 @@ func (game *GameOfLife) Println() {
 }
 
 func (game *GameOfLife) SetBorders(top, bottom, left, right utilsgo.Vector) {
-	fmt.Printf("Top: ")
-	top.Println()
-	fmt.Printf("Bottom: ")
-	bottom.Println()
-	fmt.Printf("Left: ")
-	left.Println()
-	fmt.Printf("Right: ")
-	right.Println()
 	for i := 0; i < game.matrix.Rows; i++ {
 		game.matrix.Set(i, 0, left.Get(i) == 1)
 		game.matrix.Set(i, game.matrix.Rows-1, right.Get(i) == 1)

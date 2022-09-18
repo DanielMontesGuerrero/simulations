@@ -43,10 +43,8 @@ pair<int, int> translate_coords_from_rect_to_matrix(int rect_w, int rect_h,
                                                     int texture_w,
                                                     int texture_h, int x, int y,
                                                     int cell_size) {
-  cerr << y << ' ' << x << endl;
   std::tie(x, y) = translate_coords_from_rect_to_texture(
       rect_w, rect_h, offset_x, offset_y, texture_w, texture_h, x, y);
-  cerr << y << ' ' << x << endl;
   x /= cell_size;
   y /= cell_size;
   return {x, y};

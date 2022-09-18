@@ -1,7 +1,7 @@
 #pragma once
 
 namespace Config {
-const bool SHOUD_EXECUTE_LOCALLY = false;
+const bool SHOULD_EXECUTE_LOCALLY = false;
 const int CELL_SIZE = 10;
 const int GRID_WIDTH = 10;
 const int GRID_HEIGHT = 10;
@@ -19,4 +19,5 @@ const bool SHOULD_MODULE_INDEXES = true;
 const double SPEED_FACTOR = 10;
 const double MIN_UPDATE_RATE_MS = 10;
 const double MAX_UPDATE_RATE_MS = 5000;
+const bool IS_ORCHESTRATOR_STANDALONE = false;
 };  // namespace Config

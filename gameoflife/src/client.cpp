@@ -29,16 +29,13 @@ vector<char> Client::send_message(char message_type, char event,
                                   vector<char> data) {
   int sockd = 0;
   int cliend_fd = 0;
-  cerr << "creating socket" << endl;
   if ((sockd = socket(AF_INET, type, 0)) < 0) {
     return {};
   }
-  cerr << "connecting..." << endl;
   if ((cliend_fd = connect(sockd, (struct sockaddr*)&serv_addr,
                            sizeof(serv_addr))) < 0) {
     return {};
   }
-  cerr << "connected" << endl;
   auto packet = create_packet(message_type, event, data);
   send_raw(sockd, packet);
   return read_response_packet(sockd);
@@ -56,10 +53,8 @@ vector<char> Client::create_packet(char message_type, char event,
 }
 
 void Client::send_raw(int sockd, vector<char> data) {
-  cerr << "sending data" << endl;
   int sent_len =
       send(sockd, reinterpret_cast<char*>(data.data()), data.size(), 0);
-  cerr << "sent_len: " << sent_len << endl;
   if (sent_len == -1) {
     cerr << "Error sending data" << endl;
   }
@@ -90,16 +85,17 @@ vector<char> Client::read_response_packet(int sockd) {
   int len = bytes_to_int(header);
   char* buffer = reinterpret_cast<char*>(std::malloc(len * sizeof(char)));
   read_raw(sockd, buffer, len);
-  return vector<char>(buffer, buffer + len);
+  vector<char> response(buffer, buffer + len);
+  free(header);
+  free(buffer);
+  return response;
 }
 
 void Client::read_raw(int sockd, char* buffer, int len) {
-  cerr << "attempting to read " << len << " bytes" << endl;
   int bytes_read = 0;
   int result;
   while (bytes_read < len) {
     result = read(sockd, buffer + bytes_read, len - bytes_read);
-    cerr << "read " << result << " bytes" << endl;
     if (result < 1) {
       cerr << "failed to read data" << endl;
       return;
@@ -111,9 +107,7 @@ void Client::read_raw(int sockd, char* buffer, int len) {
 int Client::bytes_to_int(char* buffer) {
   int ans = 0;
   for (int i = 0; i < 4; i++) {
-    if (i < strlen(buffer)) {
-      ans |= (buffer[i] << (8 * i));
-    }
+    ans |= ((buffer[i] & 0x000000ff) << (8 * i));
   }
   return ans;
 }
@@ -125,7 +119,9 @@ int Client::bytes_to_int(vector<char>::iterator ini,
   for (auto it = ini; it != fin; it++) {
     buffer[it - ini] = *it;
   }
-  return bytes_to_int(buffer);
+  int val = bytes_to_int(buffer);
+  free(buffer);
+  return val;
 }
 
 Matrix Client::deserialize_matrix(vector<char> packet) {

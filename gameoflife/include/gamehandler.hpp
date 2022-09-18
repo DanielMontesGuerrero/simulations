@@ -23,13 +23,15 @@ class GameHandler {
   queue<Submatrix, deque<Submatrix>> pending_updates;
 
   GameHandler(int rows, int cols, bool is_executed_locally = true);
-  void update(int x, int y, int w, int h);
   void update();
+  void send_get_message(int x, int y, int w, int h);
+  void send_get_message();
   void on_click(int i, int j);
   void increase_update_rate();
   void decrease_update_rate();
   void toggle_pause();
   void close_server();
+  void send_update_message();
 
  private:
   int last_x;

@@ -2,6 +2,7 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_render.h>
+#include <iostream>
 
 #include "gameoflife/config.hpp"
 #include "utilscpp/colors.hpp"
@@ -15,8 +16,8 @@ void draw(SDL_Renderer* renderer, GameHandler* gamehandler) {
     while (!gamehandler->pending_updates.empty()) {
       auto submatrix = gamehandler->pending_updates.front();
       gamehandler->pending_updates.pop();
-      draw(renderer, submatrix.matrix, submatrix.x, submatrix.y);
       if (gamehandler->pending_updates.empty()) {
+        draw(renderer, submatrix.matrix, submatrix.x, submatrix.y);
         gamehandler->pending_updates.push(submatrix);
         break;
       }

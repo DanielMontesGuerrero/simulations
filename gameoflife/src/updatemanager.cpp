@@ -84,15 +84,21 @@ void handle_events(UpdateManager* manager, SDL_bool* quit,
             manager->update_rate_ms =
                 max(manager->update_rate_ms - Config::SPEED_FACTOR,
                     Config::MIN_UPDATE_RATE_MS);
-            gamehandler->decrease_update_rate();
+            gamehandler->increase_update_rate();
             break;
           case SDLK_s:
             manager->update_rate_ms =
                 min(manager->update_rate_ms + Config::SPEED_FACTOR,
                     Config::MAX_UPDATE_RATE_MS);
-            gamehandler->increase_update_rate();
+            gamehandler->decrease_update_rate();
+            break;
+          case SDLK_r:
+            gamehandler->send_get_message();
+            manager->should_render = true;
+            break;
           case SDLK_u:
-            gamehandler->update();
+            gamehandler->send_update_message();
+            manager->should_render = true;
             break;
           default:
             break;
