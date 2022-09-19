@@ -3,8 +3,8 @@
 namespace Config {
 const bool SHOULD_EXECUTE_LOCALLY = false;
 const int CELL_SIZE = 10;
-const int GRID_WIDTH = 10;
-const int GRID_HEIGHT = 10;
+const int GRID_WIDTH = 20;
+const int GRID_HEIGHT = 20;
 const int HEIGHT = (GRID_HEIGHT * CELL_SIZE) + 1;
 const int WIDTH = (GRID_WIDTH * CELL_SIZE) + 1;
 const int WINDOW_WIDTH = 800;

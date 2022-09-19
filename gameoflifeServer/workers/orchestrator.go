@@ -23,7 +23,7 @@ type Orchestrator struct {
 	shouldStop bool
 }
 
-func NewOrchestrator(rows, cols int, host string, port int, protocol string, hosts []HostData) *Orchestrator {
+func NewOrchestrator(rows, cols int, host string, port int, protocol string, hosts []HostData, shouldModuleIndexes bool) *Orchestrator {
 	orchestrator := new(Orchestrator)
 	orchestrator.shouldStop = false
 	orchestrator.clients = make([]connect.Client, len(hosts))
@@ -31,7 +31,7 @@ func NewOrchestrator(rows, cols int, host string, port int, protocol string, hos
 	for i := 0; i < len(hosts); i++ {
 		orchestrator.clients[i] = *connect.NewClient(hosts[i].Host, hosts[i].Port, hosts[i].Protocol)
 	}
-	orchestrator.manager = *gameoflife.NewGameManager(rows, cols, len(hosts))
+	orchestrator.manager = *gameoflife.NewGameManager(rows, cols, len(hosts), shouldModuleIndexes)
 	return orchestrator
 }
 

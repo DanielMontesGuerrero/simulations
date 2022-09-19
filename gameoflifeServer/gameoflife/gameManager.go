@@ -29,7 +29,7 @@ type GameManager struct {
 	QueuedRequests      []Request
 }
 
-func NewGameManager(rows, cols, numOfNodes int) *GameManager {
+func NewGameManager(rows, cols, numOfNodes int, shouldModuleIndexes bool) *GameManager {
 	manager := new(GameManager)
 	manager.rows = rows
 	manager.cols = cols
@@ -43,7 +43,7 @@ func NewGameManager(rows, cols, numOfNodes int) *GameManager {
 	manager.isPaused = true
 	manager.updateRateMs = 500
 	manager.lastUpdateTimestamp = 0
-	manager.shouldModuleIndexes = false
+	manager.shouldModuleIndexes = shouldModuleIndexes
 	return manager
 }
 

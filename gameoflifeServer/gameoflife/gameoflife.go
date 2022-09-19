@@ -2,6 +2,7 @@ package gameoflife
 
 import (
 	"math/rand"
+	"time"
 
 	"github.com/DanielMontesGuerrero/simulations/utilsgo"
 )
@@ -36,6 +37,7 @@ func NewGame(rows int, cols int) *GameOfLife {
 		{1, 1},
 	}
 	game.matrix = *utilsgo.New(rows+2, cols+2)
+	rand.Seed(time.Now().UnixNano())
 	for i := 1; i <= rows; i++ {
 		for j := 1; j <= cols; j++ {
 			if rand.Intn(2) == 1 {

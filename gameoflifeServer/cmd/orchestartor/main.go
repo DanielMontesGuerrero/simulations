@@ -17,6 +17,7 @@ var port int
 var protocol string
 var debug bool
 var standAlone bool
+var shouldModuleIndexes bool
 
 func init() {
 	var hostsRaw string
@@ -29,6 +30,7 @@ func init() {
 	flag.StringVar(&portsRaw, "ports", "8080,8081,8082,8083", "The ports list for the workers")
 	flag.StringVar(&protocol, "protocol", "tcp", "The protocol to use")
 	flag.BoolVar(&debug, "debug", false, "If set, doesn't print to Stdout")
+	flag.BoolVar(&shouldModuleIndexes, "shouldModule", false, "If set, will module cell indexes when updating")
 	flag.BoolVar(&standAlone, "standalone", false, "If set, the orchestrator will update workers periodically without waiting for GameHandler")
 	flag.Parse()
 	hosts := strings.Split(hostsRaw, ",")
@@ -45,7 +47,7 @@ func init() {
 }
 
 func main() {
-	orch := workers.NewOrchestrator(rows, cols, host, port, protocol, hostsData)
+	orch := workers.NewOrchestrator(rows, cols, host, port, protocol, hostsData, shouldModuleIndexes)
 	if standAlone {
 		go orch.Run()
 	}
