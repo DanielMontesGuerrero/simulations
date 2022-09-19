@@ -3,3 +3,4 @@
 /.buckd/
 .buckconfig.local
 .vscode
+secrets
