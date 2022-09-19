@@ -12,14 +12,13 @@ COLS=0
 MODULE=0
 DEBUG=0
 
-while getopts c:r:m:d: flag
-do
-    case "${flag}" in
-        c) COLS=${OPTARG};;
-        r) ROWS=${OPTARG};;
-		m) MODULE=${OPTARG};;
-		d) DEBUG=${OPTARG};;
-    esac
+while getopts c:r:m:d: flag; do
+	case "${flag}" in
+	c) COLS=${OPTARG} ;;
+	r) ROWS=${OPTARG} ;;
+	m) MODULE=${OPTARG} ;;
+	d) DEBUG=${OPTARG} ;;
+	esac
 done
 
 if [ "$COLS" = "0" ]; then
@@ -32,20 +31,20 @@ if [ "$ROWS" = "0" ]; then
 	exit 1
 fi
 
-ROWS_1=`expr $ROWS / 2`
-MOD_ROWS=`expr $ROWS % 2`
+ROWS_1=$(expr $ROWS / 2)
+MOD_ROWS=$(expr $ROWS % 2)
 
 if [ "$MOD_ROWS" -gt "0" ]; then
-	ROWS_2=`expr $ROWS_1 + 1`
+	ROWS_2=$(expr $ROWS_1 + 1)
 else
 	ROWS_2=$ROWS_1
 fi
 
-COLS_1=`expr $COLS / 2`
-MOD_COLS=`expr $COLS % 2`
+COLS_1=$(expr $COLS / 2)
+MOD_COLS=$(expr $COLS % 2)
 
 if [ "$MOD_COLS" -gt "0" ]; then
-	COLS_2=`expr $COLS_1 + 1`
+	COLS_2=$(expr $COLS_1 + 1)
 else
 	COLS_2=$COLS_1
 fi

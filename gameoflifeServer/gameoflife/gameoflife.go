@@ -89,11 +89,11 @@ func (game *GameOfLife) Println() {
 func (game *GameOfLife) SetBorders(top, bottom, left, right utilsgo.Vector) {
 	for i := 0; i < game.matrix.Rows; i++ {
 		game.matrix.Set(i, 0, left.Get(i) == 1)
-		game.matrix.Set(i, game.matrix.Rows-1, right.Get(i) == 1)
+		game.matrix.Set(i, game.matrix.Cols-1, right.Get(i) == 1)
 	}
 	for i := 0; i < game.matrix.Cols; i++ {
 		game.matrix.Set(0, i, top.Get(i) == 1)
-		game.matrix.Set(game.matrix.Cols-1, i, bottom.Get(i) == 1)
+		game.matrix.Set(game.matrix.Rows-1, i, bottom.Get(i) == 1)
 	}
 }
 
