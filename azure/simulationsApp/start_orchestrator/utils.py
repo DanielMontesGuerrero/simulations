@@ -1,17 +1,18 @@
-from typing import List, Tuple
-from start_orchestrator.models import RequestData, WorkerInfo, OrchestratorInfo
-from azure.batch import BatchServiceClient
-import start_orchestrator.config as config
-import azure.functions as func
-from azure.batch import BatchServiceClient
-import azure.batch.models as batchmodels
 import time
 import datetime
 import sys
 import logging
+from typing import List, Tuple
+
+from azure.batch import BatchServiceClient
+import azure.functions as func
+import azure.batch.models as batchmodels
+from start_orchestrator.models import RequestData, WorkerInfo, OrchestratorInfo
+from start_orchestrator import config
 
 NUM_NODES_BREAKPOINT_1 = 1000 * 1000
 NUM_NODES_BREAKPOINT_2 = 5000 * 5000
+
 
 def add_task(batch_service_client: BatchServiceClient, job_id: str, command: str) -> str:
     """
@@ -21,13 +22,14 @@ def add_task(batch_service_client: BatchServiceClient, job_id: str, command: str
     :param list resource_input_files: A collection of input files. One task will be
      created for each input file.
     """
-    id = f'task-{int(time.time()*1000)}'
-    logging.info(f'Adding task [{id}] to job [{job_id}]...')
+    task_id = f'task-{int(time.time()*1000)}'
+    logging.info('Adding task [%d] to job [%s]...', task_id, job_id)
     batch_service_client.task.add(job_id, batchmodels.TaskAddParameter(
-        id=id,
+        id=task_id,
         command_line=command,
     ))
-    return id
+    return task_id
+
 
 def wait_for_tasks_to_complete(batch_service_client: BatchServiceClient, job_id: str,
                                timeout: datetime.timedelta):
@@ -41,7 +43,8 @@ def wait_for_tasks_to_complete(batch_service_client: BatchServiceClient, job_id:
     """
     timeout_expiration = datetime.datetime.now() + timeout
 
-    logging.info(f"Monitoring all tasks for 'Completed' state, timeout in {timeout}...", end='')
+    logging.info(
+        "Monitoring all tasks for 'Completed' state, timeout in {%s}...", timeout)
 
     while datetime.datetime.now() < timeout_expiration:
         print('.', end='')
@@ -60,16 +63,20 @@ def wait_for_tasks_to_complete(batch_service_client: BatchServiceClient, job_id:
     raise RuntimeError("ERROR: Tasks did not reach 'Completed' state within "
                        "timeout period of " + str(timeout))
 
+
 def get_task_info(batch_service_client: BatchServiceClient, job_id: str, task_id: str):
-    logging.info(f'Waiting to get task info. job_id [{job_id}] task_id [{task_id}]')
+    logging.info(
+        'Waiting to get task info. job_id [%s] task_id [%s]', job_id, task_id)
     while True:
         print('.', end='')
         sys.stdout.flush()
-        cloud_task = batch_service_client.task.get(job_id, task_id, batchmodels.TaskGetOptions(select='nodeInfo'))
-        if cloud_task != None and cloud_task.node_info != None:
+        cloud_task = batch_service_client.task.get(
+            job_id, task_id, batchmodels.TaskGetOptions(select='nodeInfo'))
+        if cloud_task is not None and cloud_task.node_info is not None:
             break
     print()
     return cloud_task
+
 
 def parse_request(req: func.HttpRequest) -> RequestData:
     rows = req.params.get('rows')
@@ -88,6 +95,7 @@ def parse_request(req: func.HttpRequest) -> RequestData:
         raise ValueError()
     return RequestData(int(rows), int(cols))
 
+
 def get_number_of_nodes(request_data: RequestData) -> int:
     total_num_cells = request_data.cols * request_data.rows
     if total_num_cells <= NUM_NODES_BREAKPOINT_1:
@@ -96,7 +104,8 @@ def get_number_of_nodes(request_data: RequestData) -> int:
         return 4
     return 9
 
-def get_last_divisors(num: int) -> Tuple[int,int]:
+
+def get_last_divisors(num: int) -> Tuple[int, int]:
     i = 1
     div1 = 1
     div2 = 2
@@ -107,6 +116,7 @@ def get_last_divisors(num: int) -> Tuple[int,int]:
         div2 = num // i
         i += 1
     return div1, div2
+
 
 def get_workers_info(request_data: RequestData, num_nodes: int) -> List[WorkerInfo]:
     num_divs_rows, num_divs_cols = get_last_divisors(num_nodes)
@@ -122,20 +132,28 @@ def get_workers_info(request_data: RequestData, num_nodes: int) -> List[WorkerIn
             workers.append(WorkerInfo(rows, cols))
     return workers
 
+
 def create_worker(batch_client: BatchServiceClient, worker: WorkerInfo):
-    command = f'echo \"-rows={worker.rows} -cols={worker.cols} -port={worker.port} -protocol={worker.protocol}\"'
+    command = (f'echo \"-rows={worker.rows} -cols={worker.cols} ' +
+               f'-port={worker.port} -protocol={worker.protocol}\"')
     task_id = add_task(batch_client, config.JOB_ID, command)
     return get_task_info(batch_client, config.JOB_ID, task_id)
 
-def create_workers(batch_client: BatchServiceClient, workers_info: List[WorkerInfo], orchestrator_info: OrchestratorInfo):
+
+def create_workers(batch_client: BatchServiceClient,
+                   workers_info: List[WorkerInfo],
+                   orchestrator_info: OrchestratorInfo):
     for worker in workers_info:
         task_info = create_worker(batch_client, worker)
         orchestrator_info.hosts.append(task_info.node_info.node_url)
         orchestrator_info.ports.append(worker.port)
 
+
 def create_orchestrator(batch_client: BatchServiceClient, orchestrator_info: OrchestratorInfo):
     hosts = ','.join(orchestrator_info.hosts)
     ports = ','.join([str(port) for port in orchestrator_info.ports])
-    command = f'echo \"-rows={orchestrator_info.rows} -cols={orchestrator_info.cols} -port={orchestrator_info.port} -protocol={orchestrator_info.protocol} -hosts={hosts} -ports={ports}\"'
+    command = (f'echo \"-rows={orchestrator_info.rows} -cols={orchestrator_info.cols} ' +
+               f'-port={orchestrator_info.port} -protocol={orchestrator_info.protocol} ' +
+               f'-hosts={hosts} -ports={ports}\"')
     task_id = add_task(batch_client, config.JOB_ID, command)
     return get_task_info(batch_client, config.JOB_ID, task_id)

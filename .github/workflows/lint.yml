@@ -17,11 +17,8 @@ jobs:
           gofmt-flags: '-l -d'
   pylint:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./azure/simulationsApp/
     steps:
       - uses: actions/checkout@v1
       - uses: fylein/python-pylint-github-action@v1
         with:
-          args: pip3 install -r ./azure/simulationsApp/requirements.txt && pylint ./azure/simulationsApp/start_orchestrator
+          args: pip3 install -r ./azure/simulationsApp/requirements.txt && pylint --rcfile=./azure/simulationsApp/.pylintrc ./azure/simulationsApp/start_orchestrator

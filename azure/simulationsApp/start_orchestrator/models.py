@@ -1,20 +1,22 @@
-from dataclasses import dataclass
 import dataclasses
 from typing import List
 
-@dataclass
+
+@dataclasses.dataclass
 class RequestData:
     rows: int
     cols: int
 
-@dataclass
+
+@dataclasses.dataclass
 class WorkerInfo:
     rows: int
     cols: int
     port: int = 8080
     protocol: str = 'tcp'
 
-@dataclass
+
+@dataclasses.dataclass
 class OrchestratorInfo:
     rows: int
     cols: int

@@ -57,12 +57,12 @@ func (manager *GameManager) GetIndexesOfNode(nodeId int) (int, int, int, int) {
 	colIndex := nodeId % manager.numDivsX
 	ui := (manager.rows / manager.numDivsY) * rowIndex
 	bi := ui + (manager.rows / manager.numDivsY) - 1
-	if rowIndex == manager.numDivsY - 1 {
+	if rowIndex == manager.numDivsY-1 {
 		bi = manager.rows - 1
 	}
 	lj := (manager.cols / manager.numDivsX) * colIndex
 	rj := lj + (manager.cols / manager.numDivsX) - 1
-	if colIndex == manager.numDivsX - 1 {
+	if colIndex == manager.numDivsX-1 {
 		rj = manager.cols - 1
 	}
 	return ui, bi, lj, rj
