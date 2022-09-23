@@ -32,15 +32,16 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         logging.info('Creating orchestrator')
         orchestrator_task_info = create_orchestrator(
             batch_client, orchestrator_info)
+        orchestrator_task_info = create_orchestrator(batch_client, orchestrator_info)
+        response = create_response(batch_client, orchestrator_task_info, orchestrator_info)
     except ValueError:
-        logging.info('Error parsing request')
+        logging.error('Error parsing request')
         return func.HttpResponse('Missing request parameters', status_code=400)
     except Exception as error:
-        logging.info('Error processing request: %s', error)
+        logging.error('Error processing request: %s', error)
         return func.HttpResponse('There was an error processing request', status_code=500)
     else:
         return func.HttpResponse(
-            'Orchestrator created at:' +
-            f'{orchestrator_task_info.node_info.node_url}:{orchestrator_info.port}',
+            response.to_json(),
             status_code=200,
         )
