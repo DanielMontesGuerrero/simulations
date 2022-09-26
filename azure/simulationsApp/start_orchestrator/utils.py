@@ -10,7 +10,7 @@ import azure.functions as func
 import azure.batch.models as batchmodels
 from start_orchestrator.models import (ComputeNodeInfo,
                                        RequestData,
-                                       RespponseData,
+                                       ResponseData,
                                        WorkerInfo,
                                        OrchestratorInfo)
 from start_orchestrator import config
@@ -160,8 +160,8 @@ def get_workers_info(request_data: RequestData, num_nodes: int) -> List[WorkerIn
 
 
 def create_worker(batch_client: BatchServiceClient, worker: WorkerInfo):
-    command = (f'echo \"-rows={worker.rows} -cols={worker.cols} ' +
-               f'-port={worker.port} -protocol={worker.protocol}\"')
+    command = config.WORKER_COMMAND.format(worker.rows, worker.cols,
+                                           worker.host, worker.port, worker.protocol)
     task_id = add_task(batch_client, config.JOB_ID, command, 'worker')
     return get_task_info(batch_client, config.JOB_ID, task_id)
 
@@ -190,14 +190,20 @@ def create_workers(batch_client: BatchServiceClient,
 def create_orchestrator(batch_client: BatchServiceClient, orchestrator_info: OrchestratorInfo):
     hosts = ','.join(orchestrator_info.hosts)
     ports = ','.join([str(port) for port in orchestrator_info.ports])
-    command = (f'echo \"-rows={orchestrator_info.rows} -cols={orchestrator_info.cols} ' +
-               f'-port={orchestrator_info.port} -protocol={orchestrator_info.protocol} ' +
-               f'-hosts={hosts} -ports={ports}\"')
+    command = config.ORCH_COMMAND.format(
+        orchestrator_info.rows,
+        orchestrator_info.cols,
+        orchestrator_info.host,
+        orchestrator_info.port,
+        orchestrator_info.protocol,
+        hosts,
+        ports,
+    )
     task_id = add_task(batch_client, config.JOB_ID, command, 'orchestrator')
     return get_task_info(batch_client, config.JOB_ID, task_id)
 
 def create_response(batch_client: BatchServiceClient, orchestrator_task_info: batchmodels.CloudTask,
-                    orchestrator_info: OrchestratorInfo) -> RespponseData:
+                    orchestrator_info: OrchestratorInfo) -> ResponseData:
     orchestrator_ip, orchestrator_port = get_inbound_endpoint(
         config.INBOUND_ENDPOINT_NAME,
         get_compute_node_info(
@@ -211,4 +217,4 @@ def create_response(batch_client: BatchServiceClient, orchestrator_task_info: ba
     for i, _ in enumerate(orchestrator_info.hosts):
         worker_response = ComputeNodeInfo(orchestrator_info.hosts[i], orchestrator_info.ports[i])
         worker_responses.append(worker_response)
-    return RespponseData(orchestrator_response, worker_responses)
+    return ResponseData(orchestrator_response, worker_responses)

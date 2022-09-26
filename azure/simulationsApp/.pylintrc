@@ -1,6 +1,6 @@
 [MAIN]
 suggestion-mode=yes
-fail-under=9.5
+fail-under=9.0
 
 [MESSAGES CONTROL]
 disable=

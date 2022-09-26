@@ -4,6 +4,7 @@ import azure.functions as func
 from azure.batch import BatchServiceClient
 from azure.batch.batch_auth import SharedKeyCredentials
 from start_orchestrator.utils import *
+from start_orchestrator.models import Response
 from start_orchestrator import config
 
 
@@ -30,18 +31,16 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         create_workers(batch_client, workers_info, orchestrator_info)
 
         logging.info('Creating orchestrator')
-        orchestrator_task_info = create_orchestrator(
-            batch_client, orchestrator_info)
         orchestrator_task_info = create_orchestrator(batch_client, orchestrator_info)
-        response = create_response(batch_client, orchestrator_task_info, orchestrator_info)
+        response_data = create_response(batch_client, orchestrator_task_info, orchestrator_info)
     except ValueError:
         logging.error('Error parsing request')
-        return func.HttpResponse('Missing request parameters', status_code=400)
+        response = Response(False, 'Bad request', None)
+        return func.HttpResponse(response.to_json(), status_code=400)
     except Exception as error:
         logging.error('Error processing request: %s', error)
-        return func.HttpResponse('There was an error processing request', status_code=500)
+        response = Response(False, f'Error processing request {error}', None)
+        return func.HttpResponse(response.to_json(), status_code=500)
     else:
-        return func.HttpResponse(
-            response.to_json(),
-            status_code=200,
-        )
+        response = Response(True, 'Ok', response_data)
+        return func.HttpResponse(response.to_json(), status_code=200)
