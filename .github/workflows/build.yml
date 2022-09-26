@@ -12,10 +12,23 @@ jobs:
         run: sudo apt update && sudo apt install -yq curl openjdk-8-jre-headless python2.7 gcc libsdl2-dev libcurlpp-dev
       - name: Install buckaroo dependencies
         run: wget "http://security.ubuntu.com/ubuntu/pool/main/o/openssl1.0/libssl1.0.0_1.0.2n-1ubuntu5.10_amd64.deb" && sudo dpkg -i libssl1.0.0_1.0.2n-1ubuntu5.10_amd64.deb
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'adopt'
+          java-version: '8'
       - uses: actions/setup-go@v3
         with:
           go-version: '^1.19.1'
+       - name: Install buck
+        run: |
+          curl -L https://github.com/facebook/buck/releases/download/v2022.05.05.01/buck.2022.05.05.01_all.deb -o buck.deb
+          sudo dpkg -i buck.deb
+          sudo rm buck.deb
+       - name: Install buckaroo
+        run: |
+          curl -L https://github.com/LoopPerfect/buckaroo/releases/download/v2.2.0/buckaroo-linux -o /bin/buckaroo
+            chmod +x /bin/buckaroo
       - name: Buck build
-        uses: GuilleDF/buckaroo-action@v1.0.3
-        with:
-          commands: buckaroo install && buck build //...
+        run: |
+            buckaroo install
+            buck build //...
