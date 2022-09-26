@@ -7,12 +7,19 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include <map>
 #include <string>
+#include <tuple>
 #include <vector>
+
+#include "gameoflife/config.hpp"
+#include "gameoflife/protocol.hpp"
+#include "utilscpp/httprequest.hpp"
 
 using std::cerr;
 using std::endl;
 using std::string;
+using std::tuple;
 using std::vector;
 
 Client::Client(string host, int port, int type)
@@ -146,4 +153,20 @@ Matrix Client::deserialize_matrix(vector<char> packet) {
     }
   }
   return matrix;
+}
+
+tuple<string, int> get_orchestrator_host() {
+  std::map<string, string> params{{"rows", std::to_string(Config::GRID_HEIGHT)},
+                                  {"cols", std::to_string(Config::GRID_WIDTH)}};
+  auto response = make_htpp_request(Protocol::AZ_CREATE_ORCH_FUNC, params);
+  if (response["result"] == nullptr) {
+    cerr << "Error reading response of request_orchestrator_host" << endl;
+    return std::make_tuple("", 0);
+  } else if (!response["result"]) {
+    cerr << "Error getting response of request_orchestrator_host: "
+         << response["description"] << endl;
+    return std::make_tuple("", 0);
+  }
+  return std::make_tuple(response["data"]["orchestrator"]["public_ip"],
+                         response["data"]["orchestrator"]["port"]);
 }

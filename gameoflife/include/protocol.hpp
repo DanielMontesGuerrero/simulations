@@ -6,6 +6,8 @@
 
 namespace Protocol {
 const char HOST[] = "127.0.0.1";
+const char AZ_CREATE_ORCH_FUNC[] =
+    "http://localhost:7071/api/start_orchestrator";
 const int PORT = 3000;
 const int TYPE = SOCK_STREAM;
 

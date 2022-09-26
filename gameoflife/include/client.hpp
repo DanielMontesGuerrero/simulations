@@ -3,11 +3,13 @@
 #include <arpa/inet.h>
 
 #include <string>
+#include <tuple>
 #include <vector>
 
 #include "utilscpp/matrix.hpp"
 
 using std::string;
+using std::tuple;
 using std::vector;
 
 class Client {
@@ -32,3 +34,5 @@ class Client {
   vector<char> ints_to_bytes(vector<int> data);
   vector<char> int_to_bytes(int x);
 };
+
+tuple<string, int> get_orchestrator_host();

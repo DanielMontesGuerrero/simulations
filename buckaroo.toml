@@ -1,0 +1,3 @@
+[[dependency]]
+package = "github.com/buckaroo-pm/nlohmann-json"
+version = ">=3.5.0"

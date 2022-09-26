@@ -1,7 +1,9 @@
 #include "gameoflife/gamehandler.hpp"
 
 #include <iostream>
+#include <tuple>
 
+#include "gameoflife/client.hpp"
 #include "gameoflife/config.hpp"
 #include "gameoflife/gameoflife.hpp"
 #include "gameoflife/protocol.hpp"
@@ -19,6 +21,15 @@ GameHandler::GameHandler(int rows, int cols, bool is_executed_locally)
   if (is_executed_locally) {
     gameoflife =
         GameOfLife(rows, cols, [](int i, int j) { return rand() % 2; });
+  } else {
+    string host;
+    int port;
+    std::tie(host, port) = get_orchestrator_host();
+    if (host.empty()) {
+      cerr << "Unable to get client host and port" << endl;
+    } else {
+      client = Client(host, port, Protocol::TYPE);
+    }
   }
 }
 

@@ -3,6 +3,7 @@
 #include <ctime>
 #include <iostream>
 
+#include "gameoflife/client.hpp"
 #include "gameoflife/config.hpp"
 #include "gameoflife/drawutils.hpp"
 #include "gameoflife/gameoflife.hpp"
@@ -65,7 +66,7 @@ int main() {
           0, 0, Config::CELL_SIZE);
       std::tie(w, h) = translate_coords_from_rect_to_matrix(
           source.w, source.h, source.x, source.y, Config::WIDTH, Config::HEIGHT,
-          source.w, source.h, Config::CELL_SIZE);
+          source.w - 1, source.h - 1, Config::CELL_SIZE);
       gamehandler.send_get_message(x, y, w - x, h - y);
       draw(renderer, texture, source, dest, &gamehandler, mpointer);
       manager.should_render = false;
