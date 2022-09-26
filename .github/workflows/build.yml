@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Install dependencies
-        run: sudo apt update && sudo apt install -yq curl openjdk-8-jre-headless python2.7 gcc libsdl2-dev libcurlpp-dev openssl1.0
+        run: sudo apt update && sudo apt install -yq curl openjdk-8-jre-headless python2.7 gcc libsdl2-dev libcurlpp-dev
       - name: Install buckaroo dependencies
         run: wget "http://security.ubuntu.com/ubuntu/pool/main/o/openssl1.0/libssl1.0.0_1.0.2n-1ubuntu5.10_amd64.deb" && wget "http://security.ubuntu.com/ubuntu/pool/main/o/openssl1.0/libssl1.0-dev_1.0.2n-1ubuntu5.10_amd64.deb" && sudo dpkg -i libssl1.0.0_1.0.2n-1ubuntu5.10_amd64.deb && sudo dpkg -i libssl1.0-dev_1.0.2n-1ubuntu5.10_amd64.deb
       - uses: actions/setup-go@v3
