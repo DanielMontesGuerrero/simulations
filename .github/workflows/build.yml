@@ -8,6 +8,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
+      - name: Buck build
+        uses: GuilleDF/buckaroo-action@v1.0.3
+        with:
+          commands: buck build //...
       - name: Install dependecies
         run: sudo apt update && sudo apt install -yq curl openjdk-8-jre-headless python2.7 gcc libsdl2-dev
       - uses: actions/setup-java@v3
