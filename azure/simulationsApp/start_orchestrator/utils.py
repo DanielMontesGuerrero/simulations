@@ -5,15 +5,15 @@ import logging
 import re
 from typing import List, Tuple
 
-from azure.batch import BatchServiceClient
-import azure.functions as func
-import azure.batch.models as batchmodels
 from start_orchestrator.models import (ComputeNodeInfo,
                                        RequestData,
                                        ResponseData,
                                        WorkerInfo,
                                        OrchestratorInfo)
 from start_orchestrator import config
+from azure.batch import BatchServiceClient
+import azure.functions as func
+import azure.batch.models as batchmodels
 
 NUM_NODES_BREAKPOINT_1 = 1000 * 1000
 NUM_NODES_BREAKPOINT_2 = 5000 * 5000
@@ -85,6 +85,7 @@ def get_task_info(batch_service_client: BatchServiceClient, job_id: str,
             break
     print()
     return cloud_task
+
 
 def get_compute_node_info(batch_service_client: BatchServiceClient, pool_id: str,
                           node_id: str) -> batchmodels.ComputeNode:
@@ -165,7 +166,8 @@ def create_worker(batch_client: BatchServiceClient, worker: WorkerInfo):
     task_id = add_task(batch_client, config.JOB_ID, command, 'worker')
     return get_task_info(batch_client, config.JOB_ID, task_id)
 
-def get_inbound_endpoint(name: str, node_info: batchmodels.ComputeNode) -> Tuple[str,int]:
+
+def get_inbound_endpoint(name: str, node_info: batchmodels.ComputeNode) -> Tuple[str, int]:
     for inbound_endpoint in node_info.endpoint_configuration.inbound_endpoints:
         print(inbound_endpoint)
         if re.search(f'{name}.*', inbound_endpoint.name):
@@ -181,8 +183,10 @@ def create_workers(batch_client: BatchServiceClient,
                    orchestrator_info: OrchestratorInfo):
     for worker in workers_info:
         task_info = create_worker(batch_client, worker)
-        node_info = get_compute_node_info(batch_client, config.POOL_ID, task_info.node_info.node_id)
-        node_ip, node_port = get_inbound_endpoint(config.INBOUND_ENDPOINT_NAME, node_info)
+        node_info = get_compute_node_info(
+            batch_client, config.POOL_ID, task_info.node_info.node_id)
+        node_ip, node_port = get_inbound_endpoint(
+            config.INBOUND_ENDPOINT_NAME, node_info)
         orchestrator_info.hosts.append(node_ip)
         orchestrator_info.ports.append(node_port)
 
@@ -202,6 +206,7 @@ def create_orchestrator(batch_client: BatchServiceClient, orchestrator_info: Orc
     task_id = add_task(batch_client, config.JOB_ID, command, 'orchestrator')
     return get_task_info(batch_client, config.JOB_ID, task_id)
 
+
 def create_response(batch_client: BatchServiceClient, orchestrator_task_info: batchmodels.CloudTask,
                     orchestrator_info: OrchestratorInfo) -> ResponseData:
     orchestrator_ip, orchestrator_port = get_inbound_endpoint(
@@ -215,6 +220,7 @@ def create_response(batch_client: BatchServiceClient, orchestrator_task_info: ba
     orchestrator_response = ComputeNodeInfo(orchestrator_ip, orchestrator_port)
     worker_responses = []
     for i, _ in enumerate(orchestrator_info.hosts):
-        worker_response = ComputeNodeInfo(orchestrator_info.hosts[i], orchestrator_info.ports[i])
+        worker_response = ComputeNodeInfo(
+            orchestrator_info.hosts[i], orchestrator_info.ports[i])
         worker_responses.append(worker_response)
     return ResponseData(orchestrator_response, worker_responses)

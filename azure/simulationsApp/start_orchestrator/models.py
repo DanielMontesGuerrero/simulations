@@ -29,17 +29,20 @@ class OrchestratorInfo:
     protocol: str = 'tcp'
     port: int = BACK_END_PORT
 
+
 @dataclasses_json.dataclass_json
 @dataclasses.dataclass
 class ComputeNodeInfo:
     public_ip: str
     port: int
 
+
 @dataclasses_json.dataclass_json
 @dataclasses.dataclass
 class ResponseData:
     orchestrator: ComputeNodeInfo
     workers: List[ComputeNodeInfo] = dataclasses.field(default_factory=list)
+
 
 @dataclasses_json.dataclass_json
 @dataclasses.dataclass

@@ -1,11 +1,11 @@
 import logging
 
-import azure.functions as func
-from azure.batch import BatchServiceClient
-from azure.batch.batch_auth import SharedKeyCredentials
 from start_orchestrator.utils import *
 from start_orchestrator.models import Response
 from start_orchestrator import config
+import azure.functions as func
+from azure.batch import BatchServiceClient
+from azure.batch.batch_auth import SharedKeyCredentials
 
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
@@ -31,8 +31,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         create_workers(batch_client, workers_info, orchestrator_info)
 
         logging.info('Creating orchestrator')
-        orchestrator_task_info = create_orchestrator(batch_client, orchestrator_info)
-        response_data = create_response(batch_client, orchestrator_task_info, orchestrator_info)
+        orchestrator_task_info = create_orchestrator(
+            batch_client, orchestrator_info)
+        response_data = create_response(
+            batch_client, orchestrator_task_info, orchestrator_info)
     except ValueError:
         logging.error('Error parsing request')
         response = Response(False, 'Bad request', None)

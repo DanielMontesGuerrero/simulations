@@ -6,7 +6,7 @@
 En la raíz del projecto ejecuta:
 
 ```bash
-<path_to_buckaroo>/buckaroo install
+buckaroo install
 buck run gameoflife
 ```
 
