@@ -26,9 +26,9 @@ jobs:
           sudo rm buck.deb
       - name: Install buckaroo
         run: |
-          curl -L https://github.com/LoopPerfect/buckaroo/releases/download/v2.2.0/buckaroo-linux -o /bin/buckaroo
-            chmod +x /bin/buckaroo
+          sudo curl -L https://github.com/LoopPerfect/buckaroo/releases/download/v2.2.0/buckaroo-linux -o /bin/buckaroo
+          sudo chmod +x /bin/buckaroo
       - name: Buck build
         run: |
-            buckaroo install
-            buck build //...
+          buckaroo install
+          buck build //...
