@@ -11,3 +11,10 @@ prebuilt_cxx_library(
     exported_linker_flags = ["-lcurlpp", "-lcurl"],
     visibility = ["//..."],
 )
+
+prebuilt_cxx_library(
+    name = "boost",
+    header_only = True,
+    exported_linker_flags = ["-lboost_program_options"],
+    visibility = ["//..."],
+)

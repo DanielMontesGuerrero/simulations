@@ -13,6 +13,7 @@ cxx_binary(
     deps = [
                "//utilscpp:utilscpp",
                "//:sdl",
+               "//:boost",
            ] +
            buckaroo_deps_from_package("github.com/buckaroo-pm/nlohmann-json"),
 )

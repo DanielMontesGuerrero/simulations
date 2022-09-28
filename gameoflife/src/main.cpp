@@ -11,7 +11,8 @@
 #include "utilscpp/mousepointer.hpp"
 #include "utilscpp/utils.hpp"
 
-int main() {
+int main(int argc, char **argv) {
+  Config::init(argc, argv);
   srand(time(NULL));
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Initialize SDL: %s",

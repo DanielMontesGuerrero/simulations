@@ -27,7 +27,8 @@ json make_htpp_request(string url, map<string, string> query_params) {
     request.setOpt(new WriteStream(&response));
     request.perform();
     auto raw_response = response.str();
-    return json::parse(raw_response);
+    auto response_json = json::parse(raw_response);
+    return response_json;
   } catch (curlpp::LibcurlLogicError& e) {
     std::cerr << e.what() << std::endl;
     return {"result", false};

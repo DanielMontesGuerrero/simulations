@@ -13,7 +13,7 @@ using std::endl;
 
 GameHandler::GameHandler(int rows, int cols, bool is_executed_locally)
     : is_executed_locally(is_executed_locally),
-      client(Protocol::HOST, Protocol::PORT, Protocol::TYPE) {
+      client(Config::HOST, Config::PORT, Protocol::TYPE) {
   last_x = 0;
   last_x = 0;
   last_h = 0;

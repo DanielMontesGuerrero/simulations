@@ -9,3 +9,6 @@ secrets
 .buckconfig.d
 buckaroo
 buckaroo_macros.bzl
+
+# Python
+.venv

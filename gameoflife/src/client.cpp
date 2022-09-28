@@ -13,7 +13,6 @@
 #include <vector>
 
 #include "gameoflife/config.hpp"
-#include "gameoflife/protocol.hpp"
 #include "utilscpp/httprequest.hpp"
 
 using std::cerr;
@@ -156,9 +155,10 @@ Matrix Client::deserialize_matrix(vector<char> packet) {
 }
 
 tuple<string, int> get_orchestrator_host() {
-  std::map<string, string> params{{"rows", std::to_string(Config::GRID_HEIGHT)},
+  std::map<string, string> params{{"code", Config::AZ_ORCH_FUNC_CODE},
+                                  {"rows", std::to_string(Config::GRID_HEIGHT)},
                                   {"cols", std::to_string(Config::GRID_WIDTH)}};
-  auto response = make_htpp_request(Protocol::AZ_CREATE_ORCH_FUNC, params);
+  auto response = make_htpp_request(Config::AZ_CREATE_ORCH_FUNC, params);
   if (response["result"] == nullptr) {
     cerr << "Error reading response of request_orchestrator_host" << endl;
     return std::make_tuple("", 0);
