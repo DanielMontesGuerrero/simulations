@@ -82,8 +82,10 @@ vector<char> Client::ints_to_bytes(const vector<int>& data) {
 }
 
 vector<char> Client::int_to_bytes(int x) {
-  return {static_cast<char>(x & 0x000000ff), static_cast<char>(x & 0x0000ff00),
-          static_cast<char>(x & 0x00ff0000), static_cast<char>(x & 0xff000000)};
+  return {static_cast<char>(x & 0x000000ff),
+          static_cast<char>((x & 0x0000ff00) >> 8),
+          static_cast<char>((x & 0x00ff0000) >> 16),
+          static_cast<char>((x & 0xff000000) >> 24)};
 }
 
 vector<char> Client::read_response_packet(int sockd) {

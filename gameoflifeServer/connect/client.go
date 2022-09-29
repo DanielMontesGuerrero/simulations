@@ -32,6 +32,7 @@ func (client *Client) Dial() net.Conn {
 func (client *Client) Send(messageType byte, event byte, data []byte) ([]byte, int) {
 	connection := client.Dial()
 	if connection == nil {
+		fmt.Println("error sending message")
 		return []byte{}, 0
 	}
 	defer connection.Close()

@@ -4,11 +4,14 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"sync"
 
 	"github.com/DanielMontesGuerrero/simulations/gameoflifeServer/connect"
 	"github.com/DanielMontesGuerrero/simulations/gameoflifeServer/gameoflife"
 	"github.com/DanielMontesGuerrero/simulations/utilsgo"
 )
+
+var wg sync.WaitGroup
 
 type HostData struct {
 	Host     string
@@ -48,18 +51,22 @@ func (orch *Orchestrator) Run() {
 
 func (orch *Orchestrator) Update() {
 	if orch.manager.ShouldUpdate() {
-		orch.UpdateBorders()
-		for cliendId := 0; cliendId < len(orch.clients); cliendId++ {
-			orch.clients[cliendId].Send(connect.MESSAGE_EVENT, connect.EVENT_UPDATE, []byte{})
-		}
+		orch.ForceUpdate()
 	}
+}
+
+func (orch *Orchestrator) sendUpdate(clientId int) {
+	defer wg.Done()
+	orch.clients[clientId].Send(connect.MESSAGE_EVENT, connect.EVENT_UPDATE, []byte{})
 }
 
 func (orch *Orchestrator) ForceUpdate() {
 	orch.UpdateBorders()
-	for cliendId := 0; cliendId < len(orch.clients); cliendId++ {
-		orch.clients[cliendId].Send(connect.MESSAGE_EVENT, connect.EVENT_UPDATE, []byte{})
+	wg.Add(len(orch.clients))
+	for clientId := 0; clientId < len(orch.clients); clientId++ {
+		go orch.sendUpdate(clientId)
 	}
+	wg.Wait()
 }
 
 func (orch *Orchestrator) TogglePause() {
@@ -88,9 +95,11 @@ func (orch *Orchestrator) ProcessQueuedEvents() {
 }
 
 func (orch *Orchestrator) UpdateBorders() {
+	wg.Add(len(orch.clients))
 	for clientId := 0; clientId < len(orch.clients); clientId++ {
-		orch.updateBorder(clientId)
+		go orch.updateBorder(clientId)
 	}
+	wg.Wait()
 }
 
 func (orch *Orchestrator) IncreaseUpdateRate() {
@@ -102,6 +111,7 @@ func (orch *Orchestrator) DecreaseUpdateRate() {
 }
 
 func (orch *Orchestrator) updateBorder(clientId int) {
+	defer wg.Done()
 	borderIndexes := orch.manager.GetBorderIndexesOfNode(clientId)
 	borders := make([]utilsgo.Vector, 4)
 	for i := 0; i < 4; i++ {
@@ -111,6 +121,7 @@ func (orch *Orchestrator) updateBorder(clientId int) {
 }
 
 func (orch *Orchestrator) requestBorder(borderIndexes [3][4]int) *utilsgo.Vector {
+	// defer wg.Done()
 	vecLen := 0
 	for i := 0; i < len(borderIndexes); i++ {
 		if borderIndexes[i][0] == borderIndexes[i][1] {
@@ -188,7 +199,7 @@ func (orch *Orchestrator) GetSubmatrix(ui, bi, lj, rj int) *utilsgo.Matrix {
 
 func (orch *Orchestrator) SendLog() {
 	for id := 0; id < len(orch.clients); id++ {
-		orch.clients[id].Send(connect.MESSAGE_EVENT, connect.EVENT_LOG, []byte{})
+		go orch.clients[id].Send(connect.MESSAGE_EVENT, connect.EVENT_LOG, []byte{})
 	}
 }
 
@@ -240,7 +251,7 @@ func (orch *Orchestrator) handleEvent(connection net.Conn, event byte, buffer []
 		data := connect.BytesToInts(buffer)
 		matrix := *utilsgo.New(0, 0)
 		if len(data) >= 4 {
-			fmt.Println(data)
+			fmt.Println("Requesting matrix:", data)
 			matrix = *orch.GetSubmatrix(data[0], data[1], data[2], data[3])
 		}
 		packet := connect.CreateResponsePacket(connect.SerializeMatrix(&matrix))
