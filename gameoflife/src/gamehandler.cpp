@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <tuple>
+#include <utility>
 
 #include "gameoflife/client.hpp"
 #include "gameoflife/config.hpp"
@@ -9,10 +10,17 @@
 #include "gameoflife/protocol.hpp"
 
 using std::cerr;
+using std::cout;
 using std::endl;
+using std::max;
+using std::min;
+using std::pair;
+using std::tie;
 
 GameHandler::GameHandler(int rows, int cols, bool is_executed_locally)
-    : is_executed_locally(is_executed_locally),
+    : rows(rows),
+      cols(cols),
+      is_executed_locally(is_executed_locally),
       client(Config::HOST, Config::PORT, Protocol::TYPE) {
   last_x = 0;
   last_x = 0;
@@ -47,10 +55,15 @@ void GameHandler::send_get_message(int x, int y, int w, int h) {
   last_w = w;
   last_h = h;
   if (!is_executed_locally) {
+    int ui, bi, lj, rj;
+    tie(ui, lj) = sanitize_coords(y, x);
+    tie(bi, rj) = sanitize_coords(y + h - 1, x + w - 1);
+    cout << "request submatrix: [" << ui << ',' << bi << ',' << lj << ',' << rj
+         << "]" << endl;
     auto buffer =
         client.send_message(Protocol::MESSAGE_EVENT, Protocol::EVENT_GET,
-                            vector<int>{y, y + h - 1, x, x + w - 1});
-    auto matrix = client.deserialize_matrix(buffer);
+                            vector<int>{ui, bi, lj, rj});
+    auto matrix = client.deserialize_matrix(&buffer);
     pending_updates.push({x, y, matrix});
   }
 }
@@ -63,6 +76,8 @@ void GameHandler::on_click(int i, int j) {
   if (is_executed_locally) {
     gameoflife.on_click(i, j);
   } else {
+    tie(i, j) = sanitize_coords(i, j);
+    cout << "send click: [" << i << ',' << j << "]" << endl;
     client.send_message(Protocol::MESSAGE_EVENT, Protocol::EVENT_MOUSE_CLICK,
                         vector<int>{i, j});
   }
@@ -95,4 +110,12 @@ void GameHandler::send_update_message() {
   if (is_executed_locally) return;
   client.send_message(Protocol::MESSAGE_EVENT, Protocol::EVENT_UPDATE,
                       vector<char>{});
+}
+
+pair<int, int> GameHandler::sanitize_coords(int i, int j) {
+  i = min(i, rows - 1);
+  i = max(i, 0);
+  j = min(j, cols - 1);
+  j = max(j, 0);
+  return {i, j};
 }

@@ -50,7 +50,7 @@ func (worker *Worker) handleEvent(connection net.Conn, event byte, buffer []byte
 		data := connect.BytesToInts(buffer)
 		if len(data) >= 4 {
 			subgrid := worker.game.GetSubgrid(data[0]+1, data[1]+1, data[2]+1, data[3]+1)
-			buffer := connect.SerializeMatrix(&subgrid)
+			buffer := connect.SerializeMatrix(subgrid)
 			response := connect.CreateResponsePacket(buffer)
 			connect.WriteRaw(connection, response)
 		} else {

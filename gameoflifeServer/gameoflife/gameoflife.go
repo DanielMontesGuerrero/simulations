@@ -65,7 +65,7 @@ func (game *GameOfLife) Update() {
 	}
 }
 
-func (game *GameOfLife) GetNeighborhoodCount(i int, j int, matrix utilsgo.Matrix) int {
+func (game *GameOfLife) GetNeighborhoodCount(i int, j int, matrix *utilsgo.Matrix) int {
 	ans := 0
 	for _, diff := range game.neighborhoodDiffs {
 		y := i + diff[0]
@@ -86,7 +86,7 @@ func (game *GameOfLife) Println() {
 	game.matrix.Println()
 }
 
-func (game *GameOfLife) SetBorders(top, bottom, left, right utilsgo.Vector) {
+func (game *GameOfLife) SetBorders(top, bottom, left, right *utilsgo.Vector) {
 	for i := 0; i < game.matrix.Rows; i++ {
 		game.matrix.Set(i, 0, left.Get(i) == 1)
 		game.matrix.Set(i, game.matrix.Cols-1, right.Get(i) == 1)
@@ -101,6 +101,6 @@ func (game *GameOfLife) ToggleCell(i, j int) {
 	game.matrix.Toggle(i, j)
 }
 
-func (game *GameOfLife) GetSubgrid(ui, di, lj, rj int) utilsgo.Matrix {
-	return *game.matrix.SubMatrix(ui, di, lj, rj)
+func (game *GameOfLife) GetSubgrid(ui, di, lj, rj int) *utilsgo.Matrix {
+	return game.matrix.SubMatrix(ui, di, lj, rj)
 }

@@ -68,6 +68,10 @@ func (orch *Orchestrator) TogglePause() {
 
 func (orch *Orchestrator) ToggleCell(i, j int) {
 	cliendId := orch.manager.GetNodeIdByIndexes(i, j)
+	if cliendId == -1 {
+		fmt.Printf("[ToggleCell] bad indexes: (%d,%d)\n", i, j)
+		return
+	}
 	dy, dx := orch.manager.GetIndexGapByNodeId(cliendId)
 	orch.clients[cliendId].Send(connect.MESSAGE_EVENT, connect.EVENT_MOUSE_CLICK, connect.IntsToBytes([]int{i - dy, j - dx}))
 }
@@ -101,12 +105,12 @@ func (orch *Orchestrator) updateBorder(clientId int) {
 	borderIndexes := orch.manager.GetBorderIndexesOfNode(clientId)
 	borders := make([]utilsgo.Vector, 4)
 	for i := 0; i < 4; i++ {
-		borders[i] = orch.requestBorder(borderIndexes[i])
+		borders[i] = *orch.requestBorder(borderIndexes[i])
 	}
 	orch.clients[clientId].Send(connect.MESSAGE_EVENT, connect.EVENT_SET_BORDERS, connect.SerializeBorders(&borders[0], &borders[1], &borders[2], &borders[3]))
 }
 
-func (orch *Orchestrator) requestBorder(borderIndexes [3][4]int) utilsgo.Vector {
+func (orch *Orchestrator) requestBorder(borderIndexes [3][4]int) *utilsgo.Vector {
 	vecLen := 0
 	for i := 0; i < len(borderIndexes); i++ {
 		if borderIndexes[i][0] == borderIndexes[i][1] {
@@ -130,7 +134,7 @@ func (orch *Orchestrator) requestBorder(borderIndexes [3][4]int) utilsgo.Vector 
 			borderIndexes[i][0], borderIndexes[i][2] = orch.manager.TranslateGlobalIndexToLocalIndex(requestClientId, borderIndexes[i][0], borderIndexes[i][2])
 			borderIndexes[i][1], borderIndexes[i][3] = orch.manager.TranslateGlobalIndexToLocalIndex(requestClientId, borderIndexes[i][1], borderIndexes[i][3])
 			buffer, _ := orch.clients[requestClientId].Send(connect.MESSAGE_EVENT, connect.EVENT_GET, connect.IntsToBytes(borderIndexes[i][:]))
-			aux = utilsgo.MatrixToVector(connect.DeserializeMatrix(buffer))
+			aux = *utilsgo.MatrixToVector(connect.DeserializeMatrix(buffer))
 			if aux.Size != auxLen {
 				fmt.Printf("Expected vector size to be %d, received %d", auxLen, aux.Size)
 				aux = *utilsgo.NewVector(auxLen)
@@ -143,10 +147,10 @@ func (orch *Orchestrator) requestBorder(borderIndexes [3][4]int) utilsgo.Vector 
 		}
 		currSize += auxLen
 	}
-	return vec
+	return &vec
 }
 
-func (orch *Orchestrator) GetSubmatrix(ui, bi, lj, rj int) utilsgo.Matrix {
+func (orch *Orchestrator) GetSubmatrix(ui, bi, lj, rj int) *utilsgo.Matrix {
 	rows := bi - ui + 1
 	cols := rj - lj + 1
 	matrix := utilsgo.New(rows, cols)
@@ -154,6 +158,10 @@ func (orch *Orchestrator) GetSubmatrix(ui, bi, lj, rj int) utilsgo.Matrix {
 		var currUi, currBi, currLj, currRj int
 		for j := lj; j <= rj; {
 			clientId := orch.manager.GetNodeIdByIndexes(i, j)
+			if clientId == -1 {
+				fmt.Printf("[GetSubmatrix] client bad indexes: (%d,%d)\n", i, j)
+				return matrix
+			}
 			_, clientBi, _, clientRj := orch.manager.GetIndexesOfNode(clientId)
 			currUi = i
 			currLj = j
@@ -170,12 +178,12 @@ func (orch *Orchestrator) GetSubmatrix(ui, bi, lj, rj int) utilsgo.Matrix {
 			indexes := []int{localCurrUi, localCurrBi, localCurrLj, localCurrRj}
 			buffer, _ := orch.clients[clientId].Send(connect.MESSAGE_EVENT, connect.EVENT_GET, connect.IntsToBytes(indexes))
 			auxMatrix := connect.DeserializeMatrix(buffer)
-			matrix.SetSubMatrix(currUi-ui, currLj-lj, &auxMatrix)
+			matrix.SetSubMatrix(currUi-ui, currLj-lj, auxMatrix)
 			j = currRj + 1
 		}
 		i = currBi + 1
 	}
-	return *matrix
+	return matrix
 }
 
 func (orch *Orchestrator) SendLog() {
@@ -232,7 +240,8 @@ func (orch *Orchestrator) handleEvent(connection net.Conn, event byte, buffer []
 		data := connect.BytesToInts(buffer)
 		matrix := *utilsgo.New(0, 0)
 		if len(data) >= 4 {
-			matrix = orch.GetSubmatrix(data[0], data[1], data[2], data[3])
+			fmt.Println(data)
+			matrix = *orch.GetSubmatrix(data[0], data[1], data[2], data[3])
 		}
 		packet := connect.CreateResponsePacket(connect.SerializeMatrix(&matrix))
 		connect.WriteRaw(connection, packet)

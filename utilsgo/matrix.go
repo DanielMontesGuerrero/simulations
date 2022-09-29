@@ -88,12 +88,12 @@ func (matrix *Matrix) SetSubMatrix(offsetI, offsetJ int, auxMatrix *Matrix) {
 	}
 }
 
-func (matrix *Matrix) Copy() Matrix {
+func (matrix *Matrix) Copy() *Matrix {
 	newMatrix := New(matrix.Rows, matrix.Cols)
 	for i := 0; i < matrix.Rows; i++ {
 		for j := 0; j < matrix.Cols; j++ {
 			newMatrix.Set(i, j, matrix.Get(i, j) == 1)
 		}
 	}
-	return *newMatrix
+	return newMatrix
 }

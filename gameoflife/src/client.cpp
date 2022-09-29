@@ -16,6 +16,7 @@
 #include "utilscpp/httprequest.hpp"
 
 using std::cerr;
+using std::cout;
 using std::endl;
 using std::string;
 using std::tuple;
@@ -32,7 +33,7 @@ Client::Client(string host, int port, int type)
 }
 
 vector<char> Client::send_message(char message_type, char event,
-                                  vector<char> data) {
+                                  const vector<char>& data) {
   int sockd = 0;
   int cliend_fd = 0;
   if ((sockd = socket(AF_INET, type, 0)) < 0) {
@@ -48,7 +49,7 @@ vector<char> Client::send_message(char message_type, char event,
 }
 
 vector<char> Client::create_packet(char message_type, char event,
-                                   vector<char> data) {
+                                   const vector<char>& data) {
   vector<char> packet;
   packet.push_back(message_type);
   packet.push_back(event);
@@ -67,11 +68,11 @@ void Client::send_raw(int sockd, vector<char> data) {
 }
 
 vector<char> Client::send_message(char message_type, char event,
-                                  vector<int> data) {
+                                  const vector<int>& data) {
   return send_message(message_type, event, ints_to_bytes(data));
 }
 
-vector<char> Client::ints_to_bytes(vector<int> data) {
+vector<char> Client::ints_to_bytes(const vector<int>& data) {
   vector<char> ans;
   for (auto i : data) {
     auto aux = int_to_bytes(i);
@@ -130,21 +131,21 @@ int Client::bytes_to_int(vector<char>::iterator ini,
   return val;
 }
 
-Matrix Client::deserialize_matrix(vector<char> packet) {
-  if (packet.size() < 8) {
+Matrix Client::deserialize_matrix(vector<char>* packet) {
+  if (packet->size() < 8) {
     return Matrix(0, 0);
   }
-  auto rows = bytes_to_int(packet.begin(), packet.begin() + 4);
-  auto cols = bytes_to_int(packet.begin() + 4, packet.begin() + 8);
+  auto rows = bytes_to_int(packet->begin(), packet->begin() + 4);
+  auto cols = bytes_to_int(packet->begin() + 4, packet->begin() + 8);
   Matrix matrix(rows, cols);
   int num_of_ints = cols / 32 + (cols % 32 ? 1 : 0);
-  vector<char> data(packet.begin() + 8, packet.end());
+  vector<char> data(packet->begin() + 8, packet->end());
   for (int i = 0; i < rows; i++) {
     for (int j = 0; j < cols; j += 32) {
       int val = 0;
-      if (data.size() >= (i * num_of_ints * 4 + j * 4 + 4)) {
-        val = bytes_to_int(data.begin() + i * num_of_ints * 4 + j * 4,
-                           data.begin() + i * num_of_ints * 4 + j * 4 + 4);
+      if (data.size() >= (i * num_of_ints * 4 + j / 32 * 4 + 4)) {
+        val = bytes_to_int(data.begin() + i * num_of_ints * 4 + j / 32 * 4,
+                           data.begin() + i * num_of_ints * 4 + j / 32 * 4 + 4);
       }
       for (int k = 0; k < 32; k++) {
         matrix.set(i, j + k, (val >> k) & 1);
@@ -155,6 +156,7 @@ Matrix Client::deserialize_matrix(vector<char> packet) {
 }
 
 tuple<string, int> get_orchestrator_host() {
+  if (strlen(Config::AZ_CREATE_ORCH_FUNC) == 0) return std::make_tuple("", 0);
   std::map<string, string> params{{"code", Config::AZ_ORCH_FUNC_CODE},
                                   {"rows", std::to_string(Config::GRID_HEIGHT)},
                                   {"cols", std::to_string(Config::GRID_WIDTH)}};

@@ -2,3 +2,8 @@ sh_binary(
     name = "run_orchestrator",
     main = "run_orchestrator.sh",
 )
+
+sh_binary(
+    name = "kill_orchestrator",
+    main = "kill_orchestrator.sh",
+)

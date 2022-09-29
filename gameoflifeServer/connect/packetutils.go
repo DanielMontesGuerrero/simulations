@@ -147,9 +147,9 @@ func SerializeMatrix(matrix *utilsgo.Matrix) []int {
 	return packet
 }
 
-func DeserializeMatrix(packet []byte) utilsgo.Matrix {
+func DeserializeMatrix(packet []byte) *utilsgo.Matrix {
 	if len(packet) < 8 {
-		return *utilsgo.New(0, 0)
+		return utilsgo.New(0, 0)
 	}
 	rows := int(binary.LittleEndian.Uint32(packet[:4]))
 	cols := int(binary.LittleEndian.Uint32(packet[4:8]))
@@ -162,15 +162,15 @@ func DeserializeMatrix(packet []byte) utilsgo.Matrix {
 	for i := 0; i < rows; i++ {
 		for j := 0; j < cols; j += 32 {
 			val := 0
-			if len(packet) >= (i*numOfInts*4 + j*4 + 4) {
-				val = int(binary.LittleEndian.Uint32(packet[i*numOfInts*4+j*4 : i*numOfInts*4+j*4+4]))
+			if len(packet) >= (i*numOfInts*4 + j/32*4 + 4) {
+				val = int(binary.LittleEndian.Uint32(packet[i*numOfInts*4+j/32*4 : i*numOfInts*4+j/32*4+4]))
 			}
 			for k := 0; k < 32; k++ {
 				matrix.Set(i, j+k, ((val>>k)&1) != 0)
 			}
 		}
 	}
-	return *matrix
+	return matrix
 }
 
 func SerializeVector(vector *utilsgo.Vector) []byte {
@@ -192,9 +192,9 @@ func SerializeVector(vector *utilsgo.Vector) []byte {
 	return data
 }
 
-func DeserializeVector(packet []byte) utilsgo.Vector {
+func DeserializeVector(packet []byte) *utilsgo.Vector {
 	if len(packet) < 4 {
-		return *utilsgo.NewVector(0)
+		return utilsgo.NewVector(0)
 	}
 	size := int(binary.LittleEndian.Uint32(packet[:4]))
 	vector := utilsgo.NewVector(size)
@@ -208,7 +208,7 @@ func DeserializeVector(packet []byte) utilsgo.Vector {
 			vector.Set(i+j, ((val>>j)&1) != 0)
 		}
 	}
-	return *vector
+	return vector
 }
 
 func SerializeBorders(top, bottom, left, right *utilsgo.Vector) []byte {
@@ -219,7 +219,7 @@ func SerializeBorders(top, bottom, left, right *utilsgo.Vector) []byte {
 	return data
 }
 
-func DeserializeBorders(data []byte) (utilsgo.Vector, utilsgo.Vector, utilsgo.Vector, utilsgo.Vector) {
+func DeserializeBorders(data []byte) (*utilsgo.Vector, *utilsgo.Vector, *utilsgo.Vector, *utilsgo.Vector) {
 	vectors := make([]utilsgo.Vector, 4)
 	for i := 0; i < 4; i++ {
 		vec := DeserializeVector(data)
@@ -228,7 +228,7 @@ func DeserializeBorders(data []byte) (utilsgo.Vector, utilsgo.Vector, utilsgo.Ve
 			numOfInts++
 		}
 		data = data[(numOfInts+1)*4:]
-		vectors[i] = vec
+		vectors[i] = *vec
 	}
-	return vectors[0], vectors[1], vectors[2], vectors[3]
+	return &vectors[0], &vectors[1], &vectors[2], &vectors[3]
 }
