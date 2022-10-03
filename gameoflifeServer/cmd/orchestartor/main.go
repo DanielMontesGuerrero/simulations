@@ -18,10 +18,12 @@ var protocol string
 var debug bool
 var standAlone bool
 var shouldModuleIndexes bool
+var help bool
 
 func init() {
 	var hostsRaw string
 	var portsRaw string
+	flag.BoolVar(&help, "help", false, "Show usage")
 	flag.IntVar(&rows, "rows", 10, "Number of rows for the orchestrator")
 	flag.IntVar(&cols, "cols", 10, "Number of cols for the orchestrator")
 	flag.StringVar(&host, "host", "localhost", "The host ip for the orchestrator")
@@ -36,6 +38,9 @@ func init() {
 	hosts := strings.Split(hostsRaw, ",")
 	ports := strings.Split(portsRaw, ",")
 	hostsData = make([]workers.HostData, len(hosts))
+	if help {
+		flag.Usage()
+	}
 	if !debug {
 		os.Stdout = nil
 	}

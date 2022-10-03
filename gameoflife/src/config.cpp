@@ -73,7 +73,9 @@ void init(int argc, char** argv) {
       "zoom-default", value<int>(&ZOOM_DEFAULT), "Zoom default")(
       "margin", value<int>(&MARGIN), "Margin of screen in pixels")(
       "scroll-amount", value<int>(&SCROLL_AMOUNT),
-      "Number of pixels to scroll");
+      "Number of pixels to scroll")("draw-grid-lines",
+                                    value<bool>(&SHOULD_DRAW_GRID_LINES),
+                                    "Draw lines between cells in the grid");
   development.add_options()("debug", value<bool>(&DEBUG),
                             "Activate debug mode");
   cloud.add_options()("local", value<bool>(&SHOULD_EXECUTE_LOCALLY),

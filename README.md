@@ -10,7 +10,7 @@ Simulaciones de la materia `Computing Selected Topics`
 #### Instalar dependencias
 ```bash
 # Instalar dependencias
-sudo apt update && sudo apt install -yq curl openjdk-8-jre-headless python2.7 gcc libsdl2-dev golang libcurlpp-dev libicu-dev libcurl4-openssl-dev libboost-all-dev
+sudo apt update && sudo apt install -yq curl wget openjdk-8-jre-headless python2.7 gcc libsdl2-dev golang libcurlpp-dev libicu-dev libcurl4-openssl-dev libboost-all-dev
 # Instalar buck
 curl -L https://github.com/facebook/buck/releases/download/v2022.05.05.01/buck.2022.05.05.01_all.deb -o buck.deb
 sudo dpkg -i buck.deb

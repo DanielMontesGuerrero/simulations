@@ -101,10 +101,12 @@ vector<char> Client::read_response_packet(int sockd) {
 }
 
 void Client::read_raw(int sockd, char* buffer, int len) {
+  int max_size = 4095;
   int bytes_read = 0;
   int result;
   while (bytes_read < len) {
-    result = read(sockd, buffer + bytes_read, len - bytes_read);
+    int len_to_read = std::min(max_size, len - bytes_read);
+    result = read(sockd, buffer + bytes_read, len_to_read);
     if (result < 1) {
       cerr << "failed to read data" << endl;
       return;
