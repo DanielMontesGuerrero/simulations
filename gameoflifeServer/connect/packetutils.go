@@ -132,7 +132,7 @@ func ReadRaw(connection net.Conn, size int) []byte {
 			return []byte{}
 		}
 		totalReadLen += readLen
-		response = append(response, buffer...)
+		response = append(response, buffer[:readLen]...)
 		if totalReadLen == size {
 			return response
 		}
