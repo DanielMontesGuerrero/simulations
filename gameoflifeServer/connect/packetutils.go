@@ -95,7 +95,11 @@ func WriteRaw(connection net.Conn, buffer []byte) {
 	}
 	totalSentLen := 0
 	for i := 0; i < MAX_RETRIES; i++ {
-		sentLen, err := connection.Write(buffer[totalSentLen:])
+		upperLimit := totalSentLen + MAX_PACKET_LEN
+		if upperLimit > len(buffer) {
+			upperLimit = len(buffer)
+		}
+		sentLen, err := connection.Write(buffer[totalSentLen:upperLimit])
 		if err != nil {
 			fmt.Println("Error writing data:", err.Error())
 			break
@@ -104,6 +108,9 @@ func WriteRaw(connection net.Conn, buffer []byte) {
 		if totalSentLen == len(buffer) {
 			break
 		}
+	}
+	if len(buffer) != totalSentLen {
+		fmt.Printf("Did not send whole packet. Send len: %d\n", totalSentLen)
 	}
 }
 
@@ -114,7 +121,11 @@ func ReadRaw(connection net.Conn, size int) []byte {
 	response := make([]byte, 0)
 	totalReadLen := 0
 	for i := 0; i < MAX_RETRIES; i++ {
-		buffer := make([]byte, size-totalReadLen)
+		lenToRead := size - totalReadLen
+		if lenToRead > MAX_PACKET_LEN {
+			lenToRead = MAX_PACKET_LEN
+		}
+		buffer := make([]byte, lenToRead)
 		readLen, err := connection.Read(buffer)
 		if err != nil {
 			fmt.Printf("Error reading bytes: %s\n", err.Error())
@@ -126,6 +137,7 @@ func ReadRaw(connection net.Conn, size int) []byte {
 			return response
 		}
 	}
+	fmt.Printf("Did not read whole packet. Read len: %d\n", totalReadLen)
 	return response
 }
 
@@ -164,6 +176,8 @@ func DeserializeMatrix(packet []byte) *utilsgo.Matrix {
 			val := 0
 			if len(packet) >= (i*numOfInts*4 + j/32*4 + 4) {
 				val = int(binary.LittleEndian.Uint32(packet[i*numOfInts*4+j/32*4 : i*numOfInts*4+j/32*4+4]))
+			} else {
+				fmt.Printf("Packet smaller than expected, size: %d\n", len(packet))
 			}
 			for k := 0; k < 32; k++ {
 				matrix.Set(i, j+k, ((val>>k)&1) != 0)

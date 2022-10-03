@@ -14,6 +14,6 @@ const EVENT_SET_BORDERS byte = 6
 const EVENT_UPDATE byte = 7
 const EVENT_LOG byte = 8
 
-const MAX_PACKET_LEN = 1000
+const MAX_PACKET_LEN = 65535
 const MAX_RETRIES = 1000
 const MAX_TIMEOUT = 1 * 1000 * 1000 * 1000
