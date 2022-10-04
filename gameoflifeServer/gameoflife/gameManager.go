@@ -29,7 +29,7 @@ type GameManager struct {
 	QueuedRequests      []Request
 }
 
-func NewGameManager(rows, cols, numOfNodes int) *GameManager {
+func NewGameManager(rows, cols, numOfNodes int, shouldModuleIndexes bool) *GameManager {
 	manager := new(GameManager)
 	manager.rows = rows
 	manager.cols = cols
@@ -43,7 +43,7 @@ func NewGameManager(rows, cols, numOfNodes int) *GameManager {
 	manager.isPaused = true
 	manager.updateRateMs = 500
 	manager.lastUpdateTimestamp = 0
-	manager.shouldModuleIndexes = false
+	manager.shouldModuleIndexes = shouldModuleIndexes
 	return manager
 }
 
@@ -57,8 +57,14 @@ func (manager *GameManager) GetIndexesOfNode(nodeId int) (int, int, int, int) {
 	colIndex := nodeId % manager.numDivsX
 	ui := (manager.rows / manager.numDivsY) * rowIndex
 	bi := ui + (manager.rows / manager.numDivsY) - 1
+	if rowIndex == manager.numDivsY-1 {
+		bi = manager.rows - 1
+	}
 	lj := (manager.cols / manager.numDivsX) * colIndex
 	rj := lj + (manager.cols / manager.numDivsX) - 1
+	if colIndex == manager.numDivsX-1 {
+		rj = manager.cols - 1
+	}
 	return ui, bi, lj, rj
 }
 
@@ -116,7 +122,13 @@ func (manager *GameManager) GetNodeIdByIndexes(i, j int) int {
 		return -1
 	}
 	rowIndex := i / (manager.rows / manager.numDivsY)
+	if rowIndex >= manager.numDivsY {
+		rowIndex = manager.numDivsY - 1
+	}
 	colIndex := j / (manager.cols / manager.numDivsX)
+	if colIndex >= manager.numDivsX {
+		colIndex = manager.numDivsX - 1
+	}
 	return rowIndex*manager.numDivsX + colIndex
 }
 

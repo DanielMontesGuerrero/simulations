@@ -1,0 +1,9 @@
+manifest = "5aeacfe1decd32b536c0cbbcfc69a7ee0cef725120e6998d82c421696e22bc4a"
+
+[[dependency]]
+package = "github.com/buckaroo-pm/nlohmann-json"
+target = "//:json"
+
+[lock."github.com/buckaroo-pm/nlohmann-json"]
+versions = [ "3.5.0" ]
+revision = "6b204e7b3fa03bdf0efbeda1c059705f5e529e66"

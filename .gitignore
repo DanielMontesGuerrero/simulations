@@ -3,3 +3,12 @@
 /.buckd/
 .buckconfig.local
 .vscode
+secrets
+
+# Buckaroo
+.buckconfig.d
+buckaroo
+buckaroo_macros.bzl
+
+# Python
+.venv

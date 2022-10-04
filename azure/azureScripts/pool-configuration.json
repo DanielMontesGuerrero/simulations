@@ -1,0 +1,53 @@
+{
+    "id": "gameoflife_pool",
+    "vmSize": "standard_a1_v2",
+    "virtualMachineConfiguration": {
+        "imageReference": {
+            "publisher": "canonical",
+            "offer": "0001-com-ubuntu-server-focal",
+            "sku": "20_04-lts",
+            "version": "latest"
+        },
+        "nodeAgentSKUId": "batch.node.ubuntu 20.04",
+        "nodePlacementConfiguration": {
+            "policy": "Regional"
+        }
+    },
+    "resizeTimeout": "PT5M",
+    "targetDedicatedNodes": 7,
+    "targetLowPriorityNodes": 0,
+    "enableAutoScale": false,
+    "enableInterNodeCommunication": true,
+    "networkConfiguration": {
+        "subnetId": "your_subnet_id",
+        "endpointConfiguration": {
+            "inboundNATPools": [
+                {
+                    "name": "gameoflife",
+                    "protocol": "tcp",
+                    "backendPort": 3000,
+                    "frontendPortRangeStart": 8000,
+                    "frontendPortRangeEnd": 9000,
+                    "networkSecurityGroupRules": []
+                }
+            ]
+        },
+        "publicIPAddressConfiguration": {
+            "provision": "BatchManaged"
+        }
+    },
+    "applicationPackageReferences": [
+        {
+            "applicationId": "orchestrator",
+            "version": "1.0.0"
+        },
+        {
+            "applicationId": "orchestrator",
+            "version": "1.0.2"
+        }
+    ],
+    "taskSlotsPerNode": 1,
+    "taskSchedulingPolicy": {
+        "nodeFillType": "Pack"
+    }
+}

@@ -6,3 +6,6 @@
 
 [go]
 prefix = github.com/DanielMontesGuerrero/simulations
+
+[cxx]
+	cxxflags = -std=c++17

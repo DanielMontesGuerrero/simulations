@@ -95,16 +95,22 @@ func WriteRaw(connection net.Conn, buffer []byte) {
 	}
 	totalSentLen := 0
 	for i := 0; i < MAX_RETRIES; i++ {
-		sentLen, err := connection.Write(buffer[totalSentLen:])
+		upperLimit := totalSentLen + MAX_PACKET_LEN
+		if upperLimit > len(buffer) {
+			upperLimit = len(buffer)
+		}
+		sentLen, err := connection.Write(buffer[totalSentLen:upperLimit])
 		if err != nil {
 			fmt.Println("Error writing data:", err.Error())
 			break
 		}
 		totalSentLen += sentLen
 		if totalSentLen == len(buffer) {
-			fmt.Printf("Sent %d total bytes\n", len(buffer))
 			break
 		}
+	}
+	if len(buffer) != totalSentLen {
+		fmt.Printf("Did not send whole packet. Send len: %d\n", totalSentLen)
 	}
 }
 
@@ -115,19 +121,23 @@ func ReadRaw(connection net.Conn, size int) []byte {
 	response := make([]byte, 0)
 	totalReadLen := 0
 	for i := 0; i < MAX_RETRIES; i++ {
-		buffer := make([]byte, size-totalReadLen)
+		lenToRead := size - totalReadLen
+		if lenToRead > MAX_PACKET_LEN {
+			lenToRead = MAX_PACKET_LEN
+		}
+		buffer := make([]byte, lenToRead)
 		readLen, err := connection.Read(buffer)
 		if err != nil {
 			fmt.Printf("Error reading bytes: %s\n", err.Error())
 			return []byte{}
 		}
 		totalReadLen += readLen
-		response = append(response, buffer...)
+		response = append(response, buffer[:readLen]...)
 		if totalReadLen == size {
-			fmt.Printf("Read %d total bytes\n", size)
 			return response
 		}
 	}
+	fmt.Printf("Did not read whole packet. Read len: %d\n", totalReadLen)
 	return response
 }
 
@@ -149,9 +159,9 @@ func SerializeMatrix(matrix *utilsgo.Matrix) []int {
 	return packet
 }
 
-func DeserializeMatrix(packet []byte) utilsgo.Matrix {
+func DeserializeMatrix(packet []byte) *utilsgo.Matrix {
 	if len(packet) < 8 {
-		return *utilsgo.New(0, 0)
+		return utilsgo.New(0, 0)
 	}
 	rows := int(binary.LittleEndian.Uint32(packet[:4]))
 	cols := int(binary.LittleEndian.Uint32(packet[4:8]))
@@ -164,15 +174,17 @@ func DeserializeMatrix(packet []byte) utilsgo.Matrix {
 	for i := 0; i < rows; i++ {
 		for j := 0; j < cols; j += 32 {
 			val := 0
-			if len(packet) >= (i*numOfInts*4 + j*4 + 4) {
-				val = int(binary.LittleEndian.Uint32(packet[i*numOfInts*4+j*4 : i*numOfInts*4+j*4+4]))
+			if len(packet) >= (i*numOfInts*4 + j/32*4 + 4) {
+				val = int(binary.LittleEndian.Uint32(packet[i*numOfInts*4+j/32*4 : i*numOfInts*4+j/32*4+4]))
+			} else {
+				fmt.Printf("Packet smaller than expected, size: %d\n", len(packet))
 			}
 			for k := 0; k < 32; k++ {
 				matrix.Set(i, j+k, ((val>>k)&1) != 0)
 			}
 		}
 	}
-	return *matrix
+	return matrix
 }
 
 func SerializeVector(vector *utilsgo.Vector) []byte {
@@ -194,9 +206,9 @@ func SerializeVector(vector *utilsgo.Vector) []byte {
 	return data
 }
 
-func DeserializeVector(packet []byte) utilsgo.Vector {
+func DeserializeVector(packet []byte) *utilsgo.Vector {
 	if len(packet) < 4 {
-		return *utilsgo.NewVector(0)
+		return utilsgo.NewVector(0)
 	}
 	size := int(binary.LittleEndian.Uint32(packet[:4]))
 	vector := utilsgo.NewVector(size)
@@ -210,7 +222,7 @@ func DeserializeVector(packet []byte) utilsgo.Vector {
 			vector.Set(i+j, ((val>>j)&1) != 0)
 		}
 	}
-	return *vector
+	return vector
 }
 
 func SerializeBorders(top, bottom, left, right *utilsgo.Vector) []byte {
@@ -221,7 +233,7 @@ func SerializeBorders(top, bottom, left, right *utilsgo.Vector) []byte {
 	return data
 }
 
-func DeserializeBorders(data []byte) (utilsgo.Vector, utilsgo.Vector, utilsgo.Vector, utilsgo.Vector) {
+func DeserializeBorders(data []byte) (*utilsgo.Vector, *utilsgo.Vector, *utilsgo.Vector, *utilsgo.Vector) {
 	vectors := make([]utilsgo.Vector, 4)
 	for i := 0; i < 4; i++ {
 		vec := DeserializeVector(data)
@@ -230,7 +242,7 @@ func DeserializeBorders(data []byte) (utilsgo.Vector, utilsgo.Vector, utilsgo.Ve
 			numOfInts++
 		}
 		data = data[(numOfInts+1)*4:]
-		vectors[i] = vec
+		vectors[i] = *vec
 	}
-	return vectors[0], vectors[1], vectors[2], vectors[3]
+	return &vectors[0], &vectors[1], &vectors[2], &vectors[3]
 }

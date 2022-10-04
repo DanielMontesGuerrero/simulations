@@ -19,6 +19,11 @@ GameOfLife::GameOfLife(int rows, int cols,
   }
 }
 
+GameOfLife::GameOfLife() : matrix(0, 0) {
+  rule = {};
+  neighborhood_diffs = {};
+}
+
 void GameOfLife::update() {
   const Matrix prev_matrix = matrix;
   for (int i = 0; i < matrix.rows; i++) {

@@ -15,3 +15,10 @@ jobs:
       - uses: Jerome1337/gofmt-action@v1.0.4
         with:
           gofmt-flags: '-l -d'
+  pylint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: fylein/python-pylint-github-action@v1
+        with:
+          args: pip3 install -r ./azure/simulationsApp/requirements.txt && pylint --rcfile=./azure/simulationsApp/.pylintrc ./azure/simulationsApp/start_orchestrator

@@ -4,7 +4,7 @@
 
 #include <ctime>
 
-#include "gameoflife/gameoflife.hpp"
+#include "gameoflife/gamehandler.hpp"
 #include "utilscpp/mousepointer.hpp"
 
 struct UpdateManager {
@@ -15,6 +15,5 @@ struct UpdateManager {
 };
 
 void handle_events(UpdateManager* manager, SDL_bool* quit,
-                   GameOfLife* gameoflife, MousePointer* mpointer,
+                   GameHandler* gamehandler, MousePointer* mpointer,
                    SDL_Rect* source);
-

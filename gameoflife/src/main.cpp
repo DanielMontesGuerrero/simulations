@@ -3,13 +3,16 @@
 #include <ctime>
 #include <iostream>
 
+#include "gameoflife/client.hpp"
 #include "gameoflife/config.hpp"
 #include "gameoflife/drawutils.hpp"
 #include "gameoflife/gameoflife.hpp"
 #include "gameoflife/updatemanager.hpp"
 #include "utilscpp/mousepointer.hpp"
+#include "utilscpp/utils.hpp"
 
-int main() {
+int main(int argc, char **argv) {
+  Config::init(argc, argv);
   srand(time(NULL));
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Initialize SDL: %s",
@@ -39,26 +42,34 @@ int main() {
 
   SDL_SetWindowTitle(window, "Game of life");
 
-  GameOfLife gameoflife(Config::GRID_HEIGHT, Config::GRID_WIDTH,
-                        [](int i, int j) { return rand() % 2; });
+  GameHandler gamehandler(Config::GRID_HEIGHT, Config::GRID_WIDTH,
+                          Config::SHOULD_EXECUTE_LOCALLY);
   UpdateManager manager;
   manager.last_update_timestamp = clock();
   MousePointer mpointer(0, 0, 5);
 
   SDL_bool quit = SDL_FALSE;
   while (!quit) {
-    handle_events(&manager, &quit, &gameoflife, &mpointer, &source);
+    handle_events(&manager, &quit, &gamehandler, &mpointer, &source);
 
     auto dt = clock() - manager.last_update_timestamp;
     auto time_since_last_update = 1000 * dt / CLOCKS_PER_SEC;
     if (time_since_last_update > manager.update_rate_ms && !manager.is_paused) {
       manager.last_update_timestamp = clock();
-      gameoflife.update();
+      gamehandler.update();
       manager.should_render = true;
     }
 
     if (manager.should_render) {
-      draw(renderer, texture, source, dest, gameoflife, mpointer);
+      int x, y, w, h;
+      std::tie(x, y) = translate_coords_from_rect_to_matrix(
+          source.w, source.h, source.x, source.y, Config::WIDTH, Config::HEIGHT,
+          0, 0, Config::CELL_SIZE);
+      std::tie(w, h) = translate_coords_from_rect_to_matrix(
+          source.w, source.h, source.x, source.y, Config::WIDTH, Config::HEIGHT,
+          source.w - 1, source.h - 1, Config::CELL_SIZE);
+      gamehandler.send_get_message(x, y, w - x, h - y);
+      draw(renderer, texture, source, dest, &gamehandler, mpointer);
       manager.should_render = false;
     }
   }

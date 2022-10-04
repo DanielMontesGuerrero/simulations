@@ -15,12 +15,13 @@ using std::min;
 using std::tie;
 
 void handle_events(UpdateManager* manager, SDL_bool* quit,
-                   GameOfLife* gameoflife, MousePointer* mpointer,
+                   GameHandler* gamehandler, MousePointer* mpointer,
                    SDL_Rect* source) {
   SDL_Event event;
   while (SDL_PollEvent(&event)) {
     switch (event.type) {
       case SDL_QUIT:
+        gamehandler->close_server();
         *quit = SDL_TRUE;
         break;
       case SDL_MOUSEBUTTONDOWN:
@@ -31,7 +32,7 @@ void handle_events(UpdateManager* manager, SDL_bool* quit,
         tie(x, y) = translate_coords_from_rect_to_texture(
             source->w, source->h, source->x, source->y, Config::WIDTH,
             Config::HEIGHT, x, y);
-        gameoflife->on_click(y / Config::CELL_SIZE, x / Config::CELL_SIZE);
+        gamehandler->on_click(y / Config::CELL_SIZE, x / Config::CELL_SIZE);
         mpointer->x = x;
         mpointer->y = y;
         manager->should_render = true;
@@ -77,16 +78,27 @@ void handle_events(UpdateManager* manager, SDL_bool* quit,
             break;
           case SDLK_p:
             manager->is_paused ^= true;
+            gamehandler->toggle_pause();
             break;
           case SDLK_f:
             manager->update_rate_ms =
                 max(manager->update_rate_ms - Config::SPEED_FACTOR,
                     Config::MIN_UPDATE_RATE_MS);
+            gamehandler->increase_update_rate();
             break;
           case SDLK_s:
             manager->update_rate_ms =
                 min(manager->update_rate_ms + Config::SPEED_FACTOR,
                     Config::MAX_UPDATE_RATE_MS);
+            gamehandler->decrease_update_rate();
+            break;
+          case SDLK_r:
+            gamehandler->send_get_message();
+            manager->should_render = true;
+            break;
+          case SDLK_u:
+            gamehandler->send_update_message();
+            manager->should_render = true;
             break;
           default:
             break;

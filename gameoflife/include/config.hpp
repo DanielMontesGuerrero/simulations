@@ -1,21 +1,33 @@
 #pragma once
 
+#include <string>
+
+using std::string;
+
 namespace Config {
-const int CELL_SIZE = 10;
-const int GRID_WIDTH = 100;
-const int GRID_HEIGHT = 100;
-const int HEIGHT = (GRID_HEIGHT * CELL_SIZE) + 1;
-const int WIDTH = (GRID_WIDTH * CELL_SIZE) + 1;
-const int WINDOW_WIDTH = 800;
-const int WINDOW_HEIGHT = 800;
-const int ZOOM_FACTOR = 2;
-const int ZOOM_DEFAULT = 1;
-const int MARGIN = 10;
-const int SCROLL_AMOUNT = CELL_SIZE;
-const bool SHOULD_DRAW_GRID_LINES = false;
-const bool DEBUG = false;
-const bool SHOULD_MODULE_INDEXES = true;
-const double SPEED_FACTOR = 10;
-const double MIN_UPDATE_RATE_MS = 10;
-const double MAX_UPDATE_RATE_MS = 5000;
+extern bool SHOULD_EXECUTE_LOCALLY;
+extern int CELL_SIZE;
+extern int GRID_WIDTH;
+extern int GRID_HEIGHT;
+extern int HEIGHT;
+extern int WIDTH;
+extern int WINDOW_WIDTH;
+extern int WINDOW_HEIGHT;
+extern int ZOOM_FACTOR;
+extern int ZOOM_DEFAULT;
+extern int MARGIN;
+extern int SCROLL_AMOUNT;
+extern bool SHOULD_DRAW_GRID_LINES;
+extern bool DEBUG;
+extern bool SHOULD_MODULE_INDEXES;
+extern double SPEED_FACTOR;
+extern double MIN_UPDATE_RATE_MS;
+extern double MAX_UPDATE_RATE_MS;
+extern bool IS_ORCHESTRATOR_STANDALONE;
+extern char* HOST;
+extern int PORT;
+extern char* AZ_CREATE_ORCH_FUNC;
+extern char* AZ_ORCH_FUNC_CODE;
+
+void init(int argc, char** argv);
 };  // namespace Config
