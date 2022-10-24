@@ -63,7 +63,6 @@ Matrix Protocol::deserialize_matrix(vector<char>* packet) {
   Matrix matrix(rows, cols);
   int num_of_ints = cols / 32 + (cols % 32 ? 1 : 0);
   vector<char> data(packet->begin() + 8, packet->end());
-  std::cerr << rows << ' ' << cols << std::endl;
   for (int i = 0; i < rows; i++) {
     for (int j = 0; j < cols; j += 32) {
       int val = 0;

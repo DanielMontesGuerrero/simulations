@@ -23,6 +23,7 @@ buck run gameoflife
 - s: Disminuir velocidad de animación
 - u: Forzar actualización
 - r: Forzar redibujado
+- w: Guardar configuración actual
 
 ## Configuración
 Ejecuta el siguiente comando para ver las opciones de configuración disponibles:
@@ -41,6 +42,9 @@ Game options:
   --speed-factor arg             Single update speed increment
   --max-update-rate arg          Maximum update rate in milliseconds
   --min-update-rate arg          Minimum update rate in milliseconds
+  --density arg                  Initial alive cells density
+  --folder arg                   Folder where configurations will be stored
+  --load-matrix arg              Matrix configuration to load
 
 Window options:
   --cell-size arg                Size of each cell in pixels
