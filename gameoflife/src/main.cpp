@@ -13,7 +13,7 @@
 #include "utilscpp/utils.hpp"
 
 int main(int argc, char **argv) {
-  Config::init(argc, argv);
+  string matrix_config = Config::init(argc, argv);
   srand(time(NULL));
   if (SDL_Init(SDL_INIT_VIDEO) < 0 || TTF_Init() < 0) {
     SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Initialize SDL: %s",
@@ -44,11 +44,12 @@ int main(int argc, char **argv) {
   SDL_SetWindowTitle(window, "Game of life");
 
   GameHandler gamehandler(Config::GRID_HEIGHT, Config::GRID_WIDTH,
-                          Config::SHOULD_EXECUTE_LOCALLY);
+                          Config::SHOULD_EXECUTE_LOCALLY, matrix_config);
   UpdateManager manager;
   manager.gamte_started_timestamp = clock();
   manager.last_update_timestamp = clock();
   MousePointer mpointer(0, 0, 5);
+  SDL_StopTextInput();
 
   SDL_bool quit = SDL_FALSE;
   while (!quit) {
