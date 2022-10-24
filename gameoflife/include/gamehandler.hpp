@@ -36,6 +36,8 @@ class GameHandler {
   void toggle_pause();
   void close_server();
   void send_update_message();
+  long long int get_num_cells_alive();
+  int get_current_iteration();
 
  private:
   int last_x;

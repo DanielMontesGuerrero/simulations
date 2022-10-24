@@ -12,9 +12,12 @@ GameOfLife::GameOfLife(int rows, int cols,
   neighborhood_diffs = {
       {-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1},
   };
+  num_cells_alive = 0;
+  current_iteration = 0;
   for (int i = 0; i < rows; i++) {
     for (int j = 0; j < cols; j++) {
       matrix.set(i, j, generator(i, j));
+      if(matrix.get(i, j)) num_cells_alive++;
     }
   }
 }
@@ -25,16 +28,21 @@ GameOfLife::GameOfLife() : matrix(0, 0) {
 }
 
 void GameOfLife::update() {
+  current_iteration++;
   const Matrix prev_matrix = matrix;
   for (int i = 0; i < matrix.rows; i++) {
     for (int j = 0; j < matrix.cols; j++) {
       int cnt = get_neighborhood_count(i, j, prev_matrix);
       bool is_alive = prev_matrix.get(i, j);
       bool new_state = false;
+      if(is_alive)
+        num_cells_alive--;
       if (is_alive && rule.survival_min <= cnt && cnt <= rule.survival_max) {
         new_state = true;
+        num_cells_alive++;
       } else if (!is_alive && rule.birth_min <= cnt && cnt <= rule.birth_max) {
         new_state = true;
+        num_cells_alive++;
       }
       matrix.set(i, j, new_state);
     }

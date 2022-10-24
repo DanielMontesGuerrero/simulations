@@ -63,7 +63,7 @@ void draw(SDL_Renderer* renderer, const Matrix& matrix, int offset_x,
   }
 }
 
-void draw(SDL_Renderer* renderer, SDL_Texture** texture, const UpdateManager& manager) {
+void draw(SDL_Renderer* renderer, SDL_Texture** texture, GameHandler* gamehandler, const UpdateManager& manager) {
   auto dt = clock() - manager.gamte_started_timestamp;
   auto current_runtime = dt / CLOCKS_PER_SEC;
   TTF_Font* sans_font = TTF_OpenFont("./ubuntu.ttf", 24);
@@ -73,7 +73,11 @@ void draw(SDL_Renderer* renderer, SDL_Texture** texture, const UpdateManager& ma
   auto message_txt = "Runtime: "
     + std::to_string(current_runtime / 60)
     + ":"
-    + std::to_string(current_runtime % 60);
+    + std::to_string(current_runtime % 60)
+    + "\tCells alive: "
+    + std::to_string(gamehandler->get_num_cells_alive())
+    + "\tGeneration: "
+    + std::to_string(gamehandler->get_current_iteration());
   SDL_Color font_color = Color::WHITE;
   SDL_Surface* surface_message =
     TTF_RenderText_Solid(sans_font, message_txt.c_str(), font_color); 
@@ -88,9 +92,9 @@ void draw(SDL_Renderer* renderer, SDL_Texture* texture, SDL_Rect source,
   // draw status
   SDL_SetRenderTarget(renderer, nullptr);
   SDL_RenderClear(renderer);
-  SDL_Rect ui_dest{Config::MARGIN.left, 2, 120, Config::MARGIN.top - 4};
-  SDL_Texture *runtime_texture;
-  draw(renderer, &runtime_texture, manager);
+  SDL_Rect ui_dest{Config::MARGIN.left, 2, Config::WINDOW_WIDTH - (Config::MARGIN.left + Config::MARGIN.right), Config::MARGIN.top - 4};
+  SDL_Texture *status_texture;
+  draw(renderer, &status_texture, gamehandler, manager);
 
 
   // clear texture
@@ -113,8 +117,8 @@ void draw(SDL_Renderer* renderer, SDL_Texture* texture, SDL_Rect source,
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
   SDL_RenderClear(renderer);
   SDL_RenderCopy(renderer, texture, &source, &dest);
-  SDL_RenderCopy(renderer, runtime_texture, nullptr, &ui_dest);
+  SDL_RenderCopy(renderer, status_texture, nullptr, &ui_dest);
   SDL_RenderPresent(renderer);
 
-  SDL_DestroyTexture(runtime_texture);
+  SDL_DestroyTexture(status_texture);
 }

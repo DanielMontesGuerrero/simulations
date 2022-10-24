@@ -29,6 +29,7 @@ extern char* HOST;
 extern int PORT;
 extern char* AZ_CREATE_ORCH_FUNC;
 extern char* AZ_ORCH_FUNC_CODE;
+extern float DENSITY;
 
 void init(int argc, char** argv);
 };  // namespace Config

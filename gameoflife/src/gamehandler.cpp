@@ -28,7 +28,9 @@ GameHandler::GameHandler(int rows, int cols, bool is_executed_locally)
   last_w = 0;
   if (is_executed_locally) {
     gameoflife =
-        GameOfLife(rows, cols, [](int i, int j) { return rand() % 2; });
+        GameOfLife(rows, cols, [](int i, int j) {
+            return (float(rand()) / RAND_MAX) <= Config::DENSITY;
+          });
   } else {
     string host;
     int port;
@@ -118,4 +120,24 @@ pair<int, int> GameHandler::sanitize_coords(int i, int j) {
   j = min(j, cols - 1);
   j = max(j, 0);
   return {i, j};
+}
+
+long long int GameHandler::get_num_cells_alive() {
+  if(is_executed_locally){
+    return gameoflife.num_cells_alive;
+  }
+  else{
+    // Unimplemented
+    return 0;
+  }
+}
+
+int GameHandler::get_current_iteration() {
+  if(is_executed_locally){
+    return gameoflife.current_iteration;
+  }
+  else{
+    // Unimplemented
+    return 0;
+  }
 }
