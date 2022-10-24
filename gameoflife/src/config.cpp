@@ -30,7 +30,7 @@ int WINDOW_WIDTH = 800;
 int WINDOW_HEIGHT = 800;
 int ZOOM_FACTOR = 2;
 int ZOOM_DEFAULT = 1;
-int MARGIN = 10;
+Offset MARGIN(10, 10, 30, 10);
 int SCROLL_AMOUNT = CELL_SIZE;
 bool SHOULD_DRAW_GRID_LINES = true;
 bool DEBUG = false;
@@ -49,6 +49,7 @@ void init(int argc, char** argv) {
   string host = "127.0.0.1";
   string az_create_orch_func;
   string az_orch_func_code;
+  int margin;
   options_description game("Game options");
   options_description window("Window options");
   options_description development("Dev options");
@@ -71,7 +72,7 @@ void init(int argc, char** argv) {
       "window-h", value<int>(&WINDOW_HEIGHT), "Height of screen in pixels")(
       "zoom-factor", value<int>(&ZOOM_FACTOR), "Zoom factor")(
       "zoom-default", value<int>(&ZOOM_DEFAULT), "Zoom default")(
-      "margin", value<int>(&MARGIN), "Margin of screen in pixels")(
+      "margin", value<int>(&margin)->default_value(10), "Margin of screen in pixels")(
       "scroll-amount", value<int>(&SCROLL_AMOUNT),
       "Number of pixels to scroll")("draw-grid-lines",
                                     value<bool>(&SHOULD_DRAW_GRID_LINES),
@@ -103,6 +104,7 @@ void init(int argc, char** argv) {
 
   if (vm.count("help")) std::cerr << game << std::endl;
 
+  MARGIN = Offset(margin, margin, 30, margin);
   HEIGHT = (GRID_HEIGHT * CELL_SIZE) + 1;
   WIDTH = (GRID_WIDTH * CELL_SIZE) + 1;
   HOST = reinterpret_cast<char*>(malloc(sizeof(char) * (host.size() + 1)));

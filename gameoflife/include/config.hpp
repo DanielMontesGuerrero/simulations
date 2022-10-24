@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include "utilscpp/utils.hpp"
 
 using std::string;
 
@@ -15,7 +16,7 @@ extern int WINDOW_WIDTH;
 extern int WINDOW_HEIGHT;
 extern int ZOOM_FACTOR;
 extern int ZOOM_DEFAULT;
-extern int MARGIN;
+extern Offset MARGIN;
 extern int SCROLL_AMOUNT;
 extern bool SHOULD_DRAW_GRID_LINES;
 extern bool DEBUG;

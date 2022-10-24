@@ -12,6 +12,7 @@ struct UpdateManager {
   clock_t last_update_timestamp = 0;
   bool is_paused = true;
   bool should_render = true;
+  clock_t gamte_started_timestamp = 0;
 };
 
 void handle_events(UpdateManager* manager, SDL_bool* quit,
