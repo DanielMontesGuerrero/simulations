@@ -1,16 +1,21 @@
 #include "utilscpp/utils.hpp"
 
 #include <algorithm>
+#include <fstream>
 #include <iostream>
+#include <string>
 #include <tuple>
 #include <utility>
+#include <vector>
 
 using std::cerr;
 using std::endl;
 using std::max;
 using std::min;
 using std::pair;
+using std::string;
 using std::tuple;
+using std::vector;
 
 pair<int, int> translate_coords_from_window_to_rect(int window_w, int window_h,
                                                     Offset offset, int rect_w,
@@ -48,4 +53,29 @@ pair<int, int> translate_coords_from_rect_to_matrix(int rect_w, int rect_h,
   x /= cell_size;
   y /= cell_size;
   return {x, y};
+}
+
+void save_to_file(string path, const vector<char>& data) {
+  std::ofstream file;
+  file.open(path, std::ios::out | std::ios::trunc | std::ios::binary);
+  if (file.is_open()) {
+    file.write(data.data(), data.size());
+    file.close();
+  }
+}
+
+vector<char> read_from_file(string path) {
+  std::ifstream file;
+  file.open(path, std::ios::in | std::ios::binary | std::ios::ate);
+  vector<char> data;
+  if (file.is_open()) {
+    int size = file.tellg();
+    char* buffer = reinterpret_cast<char*>(std::malloc(size * sizeof(char)));
+    file.seekg(0, std::ios::beg);
+    file.read(buffer, size);
+    data = vector<char>(buffer, buffer + size);
+    file.close();
+    delete[] buffer;
+  }
+  return data;
 }

@@ -12,7 +12,9 @@
 #include <tuple>
 #include <vector>
 
+#include "utilscpp/matrix.hpp"
 #include "gameoflife/config.hpp"
+#include "gameoflife/protocol.hpp"
 #include "utilscpp/httprequest.hpp"
 
 using std::cerr;
@@ -43,20 +45,9 @@ vector<char> Client::send_message(char message_type, char event,
                            sizeof(serv_addr))) < 0) {
     return {};
   }
-  auto packet = create_packet(message_type, event, data);
+  auto packet = Protocol::create_packet(message_type, event, data);
   send_raw(sockd, packet);
   return read_response_packet(sockd);
-}
-
-vector<char> Client::create_packet(char message_type, char event,
-                                   const vector<char>& data) {
-  vector<char> packet;
-  packet.push_back(message_type);
-  packet.push_back(event);
-  auto aux = int_to_bytes(data.size());
-  packet.insert(packet.end(), aux.begin(), aux.end());
-  packet.insert(packet.end(), data.begin(), data.end());
-  return packet;
 }
 
 void Client::send_raw(int sockd, vector<char> data) {
@@ -69,29 +60,13 @@ void Client::send_raw(int sockd, vector<char> data) {
 
 vector<char> Client::send_message(char message_type, char event,
                                   const vector<int>& data) {
-  return send_message(message_type, event, ints_to_bytes(data));
-}
-
-vector<char> Client::ints_to_bytes(const vector<int>& data) {
-  vector<char> ans;
-  for (auto i : data) {
-    auto aux = int_to_bytes(i);
-    ans.insert(ans.end(), aux.begin(), aux.end());
-  }
-  return ans;
-}
-
-vector<char> Client::int_to_bytes(int x) {
-  return {static_cast<char>(x & 0x000000ff),
-          static_cast<char>((x & 0x0000ff00) >> 8),
-          static_cast<char>((x & 0x00ff0000) >> 16),
-          static_cast<char>((x & 0xff000000) >> 24)};
+  return send_message(message_type, event, Protocol::ints_to_bytes(data));
 }
 
 vector<char> Client::read_response_packet(int sockd) {
   char* header = reinterpret_cast<char*>(std::malloc(4 * sizeof(char)));
   read_raw(sockd, header, 4);
-  int len = bytes_to_int(header);
+  int len = Protocol::bytes_to_int(header);
   char* buffer = reinterpret_cast<char*>(std::malloc(len * sizeof(char)));
   read_raw(sockd, buffer, len);
   vector<char> response(buffer, buffer + len);
@@ -113,50 +88,6 @@ void Client::read_raw(int sockd, char* buffer, int len) {
     }
     bytes_read += result;
   }
-}
-
-int Client::bytes_to_int(char* buffer) {
-  int ans = 0;
-  for (int i = 0; i < 4; i++) {
-    ans |= ((buffer[i] & 0x000000ff) << (8 * i));
-  }
-  return ans;
-}
-
-int Client::bytes_to_int(vector<char>::iterator ini,
-                         vector<char>::iterator fin) {
-  int len = fin - ini;
-  char* buffer = reinterpret_cast<char*>(std::malloc(len * sizeof(char)));
-  for (auto it = ini; it != fin; it++) {
-    buffer[it - ini] = *it;
-  }
-  int val = bytes_to_int(buffer);
-  free(buffer);
-  return val;
-}
-
-Matrix Client::deserialize_matrix(vector<char>* packet) {
-  if (packet->size() < 8) {
-    return Matrix(0, 0);
-  }
-  auto rows = bytes_to_int(packet->begin(), packet->begin() + 4);
-  auto cols = bytes_to_int(packet->begin() + 4, packet->begin() + 8);
-  Matrix matrix(rows, cols);
-  int num_of_ints = cols / 32 + (cols % 32 ? 1 : 0);
-  vector<char> data(packet->begin() + 8, packet->end());
-  for (int i = 0; i < rows; i++) {
-    for (int j = 0; j < cols; j += 32) {
-      int val = 0;
-      if (data.size() >= (i * num_of_ints * 4 + j / 32 * 4 + 4)) {
-        val = bytes_to_int(data.begin() + i * num_of_ints * 4 + j / 32 * 4,
-                           data.begin() + i * num_of_ints * 4 + j / 32 * 4 + 4);
-      }
-      for (int k = 0; k < 32; k++) {
-        matrix.set(i, j + k, (val >> k) & 1);
-      }
-    }
-  }
-  return matrix;
 }
 
 tuple<string, int> get_orchestrator_host() {

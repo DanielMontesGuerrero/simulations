@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include "utilscpp/utils.hpp"
 
 using std::string;
 
@@ -15,7 +16,7 @@ extern int WINDOW_WIDTH;
 extern int WINDOW_HEIGHT;
 extern int ZOOM_FACTOR;
 extern int ZOOM_DEFAULT;
-extern int MARGIN;
+extern Offset MARGIN;
 extern int SCROLL_AMOUNT;
 extern bool SHOULD_DRAW_GRID_LINES;
 extern bool DEBUG;
@@ -28,6 +29,8 @@ extern char* HOST;
 extern int PORT;
 extern char* AZ_CREATE_ORCH_FUNC;
 extern char* AZ_ORCH_FUNC_CODE;
+extern float DENSITY;
+extern char* SAVE_TO_FOLDER;
 
-void init(int argc, char** argv);
+string init(int argc, char** argv);
 };  // namespace Config

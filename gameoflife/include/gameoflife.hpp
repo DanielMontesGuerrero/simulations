@@ -19,6 +19,8 @@ struct Rule {
 class GameOfLife {
  public:
   Matrix matrix;
+  int64_t num_cells_alive;
+  int current_iteration;
 
   GameOfLife();
   GameOfLife(int rows, int cols, std::function<bool(int, int)> generator);

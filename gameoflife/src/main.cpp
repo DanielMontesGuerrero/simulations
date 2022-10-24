@@ -1,4 +1,5 @@
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 
 #include <ctime>
 #include <iostream>
@@ -12,9 +13,9 @@
 #include "utilscpp/utils.hpp"
 
 int main(int argc, char **argv) {
-  Config::init(argc, argv);
+  string matrix_config = Config::init(argc, argv);
   srand(time(NULL));
-  if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+  if (SDL_Init(SDL_INIT_VIDEO) < 0 || TTF_Init() < 0) {
     SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Initialize SDL: %s",
                  SDL_GetError());
     return EXIT_FAILURE;
@@ -22,9 +23,10 @@ int main(int argc, char **argv) {
 
   SDL_Rect source{0, 0, Config::WINDOW_WIDTH / Config::ZOOM_DEFAULT,
                   Config::WINDOW_HEIGHT / Config::ZOOM_DEFAULT};
-  SDL_Rect dest{Config::MARGIN, Config::MARGIN,
-                Config::WINDOW_WIDTH - 2 * Config::MARGIN,
-                Config::WINDOW_HEIGHT - 2 * Config::MARGIN};
+  SDL_Rect dest{
+      Config::MARGIN.left, Config::MARGIN.top,
+      Config::WINDOW_WIDTH - (Config::MARGIN.left + Config::MARGIN.right),
+      Config::WINDOW_HEIGHT - (Config::MARGIN.top + Config::MARGIN.bottom)};
   SDL_Window *window;
   SDL_Renderer *renderer;
   SDL_Texture *texture;
@@ -43,10 +45,12 @@ int main(int argc, char **argv) {
   SDL_SetWindowTitle(window, "Game of life");
 
   GameHandler gamehandler(Config::GRID_HEIGHT, Config::GRID_WIDTH,
-                          Config::SHOULD_EXECUTE_LOCALLY);
+                          Config::SHOULD_EXECUTE_LOCALLY, matrix_config);
   UpdateManager manager;
+  manager.gamte_started_timestamp = clock();
   manager.last_update_timestamp = clock();
   MousePointer mpointer(0, 0, 5);
+  SDL_StopTextInput();
 
   SDL_bool quit = SDL_FALSE;
   while (!quit) {
@@ -69,7 +73,7 @@ int main(int argc, char **argv) {
           source.w, source.h, source.x, source.y, Config::WIDTH, Config::HEIGHT,
           source.w - 1, source.h - 1, Config::CELL_SIZE);
       gamehandler.send_get_message(x, y, w - x, h - y);
-      draw(renderer, texture, source, dest, &gamehandler, mpointer);
+      draw(renderer, texture, source, dest, &gamehandler, mpointer, manager);
       manager.should_render = false;
     }
   }
