@@ -1,9 +1,10 @@
 #include "gameoflife/gamehandler.hpp"
 
+#include <ctime>
 #include <iostream>
+#include <string>
 #include <tuple>
 #include <utility>
-#include <string>
 
 #include "gameoflife/client.hpp"
 #include "gameoflife/config.hpp"
@@ -17,10 +18,11 @@ using std::endl;
 using std::max;
 using std::min;
 using std::pair;
-using std::tie;
 using std::string;
+using std::tie;
 
-GameHandler::GameHandler(int rows, int cols, bool is_executed_locally, string matrix_config)
+GameHandler::GameHandler(int rows, int cols, bool is_executed_locally,
+                         string matrix_config)
     : rows(rows),
       cols(cols),
       is_executed_locally(is_executed_locally),
@@ -30,11 +32,11 @@ GameHandler::GameHandler(int rows, int cols, bool is_executed_locally, string ma
   last_h = 0;
   last_w = 0;
   if (is_executed_locally) {
-    gameoflife =
-        GameOfLife(rows, cols, [](int i, int j) {
-            return (float(rand()) / RAND_MAX) <= Config::DENSITY;
-          });
-    if(!matrix_config.empty()){
+    gameoflife = GameOfLife(rows, cols, [](int i, int j) {
+      auto prob = static_cast<float>(rand() / RAND_MAX);
+      return prob <= Config::DENSITY;
+    });
+    if (!matrix_config.empty()) {
       set_matrix_from_file(matrix_config);
     }
   } else {
@@ -66,9 +68,9 @@ void GameHandler::send_get_message(int x, int y, int w, int h) {
     int ui, bi, lj, rj;
     tie(ui, lj) = sanitize_coords(y, x);
     tie(bi, rj) = sanitize_coords(y + h - 1, x + w - 1);
-    if(Config::DEBUG){
-      cout << "request submatrix: [" << ui << ',' << bi << ',' << lj << ',' << rj
-         << "]" << endl;
+    if (Config::DEBUG) {
+      cout << "request submatrix: [" << ui << ',' << bi << ',' << lj << ','
+           << rj << "]" << endl;
     }
     auto buffer =
         client.send_message(Protocol::MESSAGE_EVENT, Protocol::EVENT_GET,
@@ -130,32 +132,30 @@ pair<int, int> GameHandler::sanitize_coords(int i, int j) {
   return {i, j};
 }
 
-long long int GameHandler::get_num_cells_alive() {
-  if(is_executed_locally){
+int64_t GameHandler::get_num_cells_alive() {
+  if (is_executed_locally) {
     return gameoflife.num_cells_alive;
-  }
-  else{
+  } else {
     // Unimplemented
     return 0;
   }
 }
 
 int GameHandler::get_current_iteration() {
-  if(is_executed_locally){
+  if (is_executed_locally) {
     return gameoflife.current_iteration;
-  }
-  else{
+  } else {
     // Unimplemented
     return 0;
   }
 }
 
-void GameHandler::save_current_config(string path){
+void GameHandler::save_current_config(string path) {
   auto data = Protocol::serialize_matrix(gameoflife.matrix);
   save_to_file(Config::SAVE_TO_FOLDER + path, Protocol::ints_to_bytes(data));
 }
 
-void GameHandler::set_matrix_from_file(string path){
+void GameHandler::set_matrix_from_file(string path) {
   auto data = read_from_file(path);
   /* for(auto i:data) std::cerr << i << ' '; std::cerr << std::endl; */
   auto matrix = Protocol::deserialize_matrix(&data);

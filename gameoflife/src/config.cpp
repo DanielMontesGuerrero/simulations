@@ -1,11 +1,11 @@
 #include "gameoflife/config.hpp"
 
-#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <algorithm>
 #include <boost/program_options.hpp>
 
 using boost::program_options::command_line_parser;
@@ -69,21 +69,23 @@ string init(int argc, char** argv) {
       "max-update-rate", value<double>(&MAX_UPDATE_RATE_MS),
       "Maximum update rate in milliseconds")(
       "min-update-rate", value<double>(&MIN_UPDATE_RATE_MS),
-      "Minimum update rate in milliseconds")
-      ("density", value<float>(&DENSITY), "Initial alive cells density")
-      ("folder", value<string>(&save_to_folder)->default_value(""), "Folder where configurations will be stored")
-      ("load-matrix", value<string>(&load_matrix), "Matrix configuration to load");
+      "Minimum update rate in milliseconds")("density", value<float>(&DENSITY),
+                                             "Initial alive cells density")(
+      "folder", value<string>(&save_to_folder)->default_value(""),
+      "Folder where configurations will be stored")(
+      "load-matrix", value<string>(&load_matrix),
+      "Matrix configuration to load");
   window.add_options()("cell-size", value<int>(&CELL_SIZE),
                        "Size of each cell in pixels")(
       "window-w", value<int>(&WINDOW_WIDTH), "Width of screen in pixels")(
       "window-h", value<int>(&WINDOW_HEIGHT), "Height of screen in pixels")(
       "zoom-factor", value<int>(&ZOOM_FACTOR), "Zoom factor")(
       "zoom-default", value<int>(&ZOOM_DEFAULT), "Zoom default")(
-      "margin", value<int>(&margin)->default_value(10), "Margin of screen in pixels")(
-      "scroll-amount", value<int>(&SCROLL_AMOUNT),
-      "Number of pixels to scroll")("draw-grid-lines",
-                                    value<bool>(&SHOULD_DRAW_GRID_LINES),
-                                    "Draw lines between cells in the grid");
+      "margin", value<int>(&margin)->default_value(10),
+      "Margin of screen in pixels")("scroll-amount", value<int>(&SCROLL_AMOUNT),
+                                    "Number of pixels to scroll")(
+      "draw-grid-lines", value<bool>(&SHOULD_DRAW_GRID_LINES),
+      "Draw lines between cells in the grid");
   development.add_options()("debug", value<bool>(&DEBUG),
                             "Activate debug mode");
   cloud.add_options()("local", value<bool>(&SHOULD_EXECUTE_LOCALLY),
@@ -127,8 +129,7 @@ string init(int argc, char** argv) {
            az_create_orch_func.c_str());
   snprintf(AZ_ORCH_FUNC_CODE, az_orch_func_code.size() + 1,
            az_orch_func_code.c_str());
-  snprintf(SAVE_TO_FOLDER, save_to_folder.size() + 1,
-           save_to_folder.c_str());
+  snprintf(SAVE_TO_FOLDER, save_to_folder.size() + 1, save_to_folder.c_str());
   return load_matrix;
 }
 };  // namespace Config

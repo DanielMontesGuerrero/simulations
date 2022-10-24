@@ -48,7 +48,7 @@ void handle_events(UpdateManager* manager, SDL_bool* quit,
       case SDL_KEYDOWN:
         manager->should_render = true;
         // non alphanumeric keys
-        switch(event.key.keysym.sym){
+        switch (event.key.keysym.sym) {
           case SDLK_RETURN:
             manager->should_listen_to_inputtext = false;
             gamehandler->save_current_config(manager->input);
@@ -56,7 +56,8 @@ void handle_events(UpdateManager* manager, SDL_bool* quit,
             SDL_StopTextInput();
             break;
           case SDLK_BACKSPACE:
-            if(manager->should_listen_to_inputtext && !manager->input.empty()){
+            if (manager->should_listen_to_inputtext &&
+                !manager->input.empty()) {
               manager->input.pop_back();
             }
             break;
@@ -69,21 +70,21 @@ void handle_events(UpdateManager* manager, SDL_bool* quit,
             break;
         }
         // alphanumeric keys
-        if(!manager->should_listen_to_inputtext){
+        if (!manager->should_listen_to_inputtext) {
           switch (event.key.keysym.sym) {
             case SDLK_UP:
               source->y = max(0, source->y - Config::SCROLL_AMOUNT);
               break;
             case SDLK_DOWN:
               source->y = min(Config::HEIGHT - source->h,
-                  source->y + Config::SCROLL_AMOUNT);
+                              source->y + Config::SCROLL_AMOUNT);
               break;
             case SDLK_LEFT:
               source->x = max(0, source->x - Config::SCROLL_AMOUNT);
               break;
             case SDLK_RIGHT:
               source->x = min(Config::WIDTH - source->w,
-                  source->x + Config::SCROLL_AMOUNT);
+                              source->x + Config::SCROLL_AMOUNT);
               break;
             case SDLK_o:
               source->w *= Config::ZOOM_FACTOR;
@@ -92,10 +93,10 @@ void handle_events(UpdateManager* manager, SDL_bool* quit,
               source->h = min(source->h, Config::HEIGHT);
               source->x = max(0, source->x - Config::SCROLL_AMOUNT);
               source->x = min(Config::WIDTH - source->w,
-                  source->x + Config::SCROLL_AMOUNT);
+                              source->x + Config::SCROLL_AMOUNT);
               source->y = max(0, source->y - Config::SCROLL_AMOUNT);
               source->y = min(Config::HEIGHT - source->h,
-                  source->y + Config::SCROLL_AMOUNT);
+                              source->y + Config::SCROLL_AMOUNT);
               break;
             case SDLK_i:
               source->w /= Config::ZOOM_FACTOR;
@@ -109,14 +110,14 @@ void handle_events(UpdateManager* manager, SDL_bool* quit,
               break;
             case SDLK_f:
               manager->update_rate_ms =
-                max(manager->update_rate_ms - Config::SPEED_FACTOR,
-                    Config::MIN_UPDATE_RATE_MS);
+                  max(manager->update_rate_ms - Config::SPEED_FACTOR,
+                      Config::MIN_UPDATE_RATE_MS);
               gamehandler->increase_update_rate();
               break;
             case SDLK_s:
               manager->update_rate_ms =
-                min(manager->update_rate_ms + Config::SPEED_FACTOR,
-                    Config::MAX_UPDATE_RATE_MS);
+                  min(manager->update_rate_ms + Config::SPEED_FACTOR,
+                      Config::MAX_UPDATE_RATE_MS);
               gamehandler->decrease_update_rate();
               break;
             case SDLK_r:

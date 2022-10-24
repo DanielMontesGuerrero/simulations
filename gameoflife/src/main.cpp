@@ -23,9 +23,10 @@ int main(int argc, char **argv) {
 
   SDL_Rect source{0, 0, Config::WINDOW_WIDTH / Config::ZOOM_DEFAULT,
                   Config::WINDOW_HEIGHT / Config::ZOOM_DEFAULT};
-  SDL_Rect dest{Config::MARGIN.left, Config::MARGIN.top,
-                Config::WINDOW_WIDTH - (Config::MARGIN.left + Config::MARGIN.right),
-                Config::WINDOW_HEIGHT - (Config::MARGIN.top + Config::MARGIN.bottom)};
+  SDL_Rect dest{
+      Config::MARGIN.left, Config::MARGIN.top,
+      Config::WINDOW_WIDTH - (Config::MARGIN.left + Config::MARGIN.right),
+      Config::WINDOW_HEIGHT - (Config::MARGIN.top + Config::MARGIN.bottom)};
   SDL_Window *window;
   SDL_Renderer *renderer;
   SDL_Texture *texture;

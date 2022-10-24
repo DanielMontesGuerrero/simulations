@@ -19,7 +19,7 @@ struct Rule {
 class GameOfLife {
  public:
   Matrix matrix;
-  long long int num_cells_alive;
+  int64_t num_cells_alive;
   int current_iteration;
 
   GameOfLife();

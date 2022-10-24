@@ -2,8 +2,8 @@
 
 #include <deque>
 #include <queue>
-#include <utility>
 #include <string>
+#include <utility>
 
 #include "gameoflife/client.hpp"
 #include "gameoflife/gameoflife.hpp"
@@ -27,7 +27,8 @@ class GameHandler {
   Client client;
   queue<Submatrix, deque<Submatrix>> pending_updates;
 
-  GameHandler(int rows, int cols, bool is_executed_locally = true, std::string matrix_config = "");
+  GameHandler(int rows, int cols, bool is_executed_locally = true,
+              std::string matrix_config = "");
   void update();
   void send_get_message(int x, int y, int w, int h);
   void send_get_message();
@@ -37,7 +38,7 @@ class GameHandler {
   void toggle_pause();
   void close_server();
   void send_update_message();
-  long long int get_num_cells_alive();
+  int64_t get_num_cells_alive();
   int get_current_iteration();
   void save_current_config(std::string path);
   void set_matrix_from_file(std::string path);

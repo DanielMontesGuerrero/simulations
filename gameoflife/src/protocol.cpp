@@ -1,13 +1,14 @@
 #include "gameoflife/protocol.hpp"
 
-#include <vector>
 #include <iostream>
+#include <vector>
+
 #include "utilscpp/matrix.hpp"
 
 using std::vector;
 
 vector<char> Protocol::create_packet(char message_type, char event,
-                                   const vector<char>& data) {
+                                     const vector<char>& data) {
   vector<char> packet;
   packet.push_back(message_type);
   packet.push_back(event);
@@ -42,7 +43,7 @@ int Protocol::bytes_to_int(char* buffer) {
 }
 
 int Protocol::bytes_to_int(vector<char>::iterator ini,
-                         vector<char>::iterator fin) {
+                           vector<char>::iterator fin) {
   int len = fin - ini;
   char* buffer = reinterpret_cast<char*>(std::malloc(len * sizeof(char)));
   for (auto it = ini; it != fin; it++) {
@@ -78,16 +79,15 @@ Matrix Protocol::deserialize_matrix(vector<char>* packet) {
   return matrix;
 }
 
-vector<int> Protocol::serialize_matrix(const Matrix& matrix){
+vector<int> Protocol::serialize_matrix(const Matrix& matrix) {
   vector<int> packet;
   packet.push_back(matrix.rows);
   packet.push_back(matrix.cols);
-  for(int i = 0; i < matrix.rows; i++){
-    for(int j = 0; j < matrix.cols; j += 32){
+  for (int i = 0; i < matrix.rows; i++) {
+    for (int j = 0; j < matrix.cols; j += 32) {
       int val = 0;
-      for(int k = 0; k < 32; k++){
-        if(matrix.get(i, j + k))
-          val |= (1 << k);
+      for (int k = 0; k < 32; k++) {
+        if (matrix.get(i, j + k)) val |= (1 << k);
       }
       packet.push_back(val);
     }
