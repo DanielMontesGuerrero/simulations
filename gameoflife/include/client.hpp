@@ -39,3 +39,4 @@ class Client {
 };
 
 tuple<string, int> get_orchestrator_host();
+void update_plot_proxy(string type, int iteration, float value);

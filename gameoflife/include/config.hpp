@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+
 #include "utilscpp/utils.hpp"
 
 using std::string;
@@ -31,6 +32,8 @@ extern char* AZ_CREATE_ORCH_FUNC;
 extern char* AZ_ORCH_FUNC_CODE;
 extern float DENSITY;
 extern char* SAVE_TO_FOLDER;
+extern char* PLOT_PROXY;
 
 string init(int argc, char** argv);
+string get_plot_proxy_port();
 };  // namespace Config

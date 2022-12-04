@@ -1,5 +1,6 @@
 #include "gameoflife/gamehandler.hpp"
 
+#include <cmath>
 #include <ctime>
 #include <iostream>
 #include <string>
@@ -33,7 +34,7 @@ GameHandler::GameHandler(int rows, int cols, bool is_executed_locally,
   last_w = 0;
   if (is_executed_locally) {
     gameoflife = GameOfLife(rows, cols, [](int i, int j) {
-      auto prob = static_cast<float>(rand() / RAND_MAX);
+      auto prob = static_cast<float>(rand()) / RAND_MAX;
       return prob <= Config::DENSITY;
     });
     if (!matrix_config.empty()) {
@@ -56,6 +57,13 @@ void GameHandler::update() {
     gameoflife.update();
   } else if (!Config::IS_ORCHESTRATOR_STANDALONE) {
     send_update_message();
+  }
+  try {
+    update_plot_proxy("density", get_current_iteration(), get_density());
+    update_plot_proxy("entropy", get_current_iteration(), get_entropy());
+  }
+  catch(...) {
+    // proxy not connected
   }
 }
 
@@ -141,6 +149,16 @@ int64_t GameHandler::get_num_cells_alive() {
   }
 }
 
+int64_t GameHandler::get_total_num_cells() {
+  if (is_executed_locally) {
+    return static_cast<int64_t>(gameoflife.matrix.rows) *
+           gameoflife.matrix.cols;
+  } else {
+    // Unimplemented
+    return 0;
+  }
+}
+
 int GameHandler::get_current_iteration() {
   if (is_executed_locally) {
     return gameoflife.current_iteration;
@@ -148,6 +166,17 @@ int GameHandler::get_current_iteration() {
     // Unimplemented
     return 0;
   }
+}
+
+long double GameHandler::get_density() {
+  return static_cast<long double>(this->get_num_cells_alive()) /
+         static_cast<long double>(this->get_total_num_cells());
+}
+
+long double GameHandler::get_entropy() {
+  long double density = std::max(1e-6L, std::min(1.0L - 1e-6L, get_density()));
+  return -(density * std::log2(density) +
+           (1 - density) * std::log2(1 - density));
 }
 
 void GameHandler::save_current_config(string path) {

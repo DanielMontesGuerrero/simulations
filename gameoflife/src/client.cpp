@@ -12,10 +12,10 @@
 #include <tuple>
 #include <vector>
 
-#include "utilscpp/matrix.hpp"
 #include "gameoflife/config.hpp"
 #include "gameoflife/protocol.hpp"
 #include "utilscpp/httprequest.hpp"
+#include "utilscpp/matrix.hpp"
 
 using std::cerr;
 using std::cout;
@@ -95,7 +95,7 @@ tuple<string, int> get_orchestrator_host() {
   std::map<string, string> params{{"code", Config::AZ_ORCH_FUNC_CODE},
                                   {"rows", std::to_string(Config::GRID_HEIGHT)},
                                   {"cols", std::to_string(Config::GRID_WIDTH)}};
-  auto response = make_htpp_request(Config::AZ_CREATE_ORCH_FUNC, params);
+  auto response = make_htpp_request(Config::AZ_CREATE_ORCH_FUNC, params, false);
   if (response["result"] == nullptr) {
     cerr << "Error reading response of request_orchestrator_host" << endl;
     return std::make_tuple("", 0);
@@ -106,4 +106,17 @@ tuple<string, int> get_orchestrator_host() {
   }
   return std::make_tuple(response["data"]["orchestrator"]["public_ip"],
                          response["data"]["orchestrator"]["port"]);
+}
+
+void update_plot_proxy(string type, int iteration, float value) {
+  if (strlen(Config::PLOT_PROXY) == 0) return;
+  std::map<string, string> params{{type, std::to_string(value)},
+                                  {"iteration", std::to_string(iteration)}};
+  auto response =
+      make_htpp_request(string(Config::PLOT_PROXY) + "/" + type, params, true);
+  if (response["result"] == nullptr) {
+    cerr << "Error reading response of update_plot_proxy" << endl;
+  } else if (!response["result"]) {
+    cerr << "Error updating plot proxy" << endl;
+  }
 }

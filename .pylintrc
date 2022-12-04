@@ -1,0 +1,10 @@
+[MAIN]
+suggestion-mode=yes
+fail-under=9.0
+
+[MESSAGES CONTROL]
+disable=
+	missing-function-docstring,
+	missing-class-docstring,
+	missing-module-docstring,
+	trailing-comma-tuple,

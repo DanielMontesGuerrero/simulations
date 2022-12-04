@@ -39,7 +39,10 @@ class GameHandler {
   void close_server();
   void send_update_message();
   int64_t get_num_cells_alive();
+  int64_t get_total_num_cells();
   int get_current_iteration();
+  long double get_density();
+  long double get_entropy();
   void save_current_config(std::string path);
   void set_matrix_from_file(std::string path);
 

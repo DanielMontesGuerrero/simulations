@@ -15,6 +15,7 @@
 int main(int argc, char **argv) {
   string matrix_config = Config::init(argc, argv);
   srand(time(NULL));
+
   if (SDL_Init(SDL_INIT_VIDEO) < 0 || TTF_Init() < 0) {
     SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Initialize SDL: %s",
                  SDL_GetError());

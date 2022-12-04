@@ -8,6 +8,7 @@ using std::map;
 using std::string;
 using json = nlohmann::json;
 
-json make_htpp_request(string url, map<string, string> query_params);
+json make_htpp_request(string url, map<string, string> query_params,
+                       bool is_post);
 
 string get_params_string(map<string, string> params);

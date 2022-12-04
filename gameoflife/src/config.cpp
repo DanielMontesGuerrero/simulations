@@ -1,11 +1,11 @@
 #include "gameoflife/config.hpp"
 
+#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <algorithm>
 #include <boost/program_options.hpp>
 
 using boost::program_options::command_line_parser;
@@ -44,11 +44,13 @@ int PORT = 3000;
 char* AZ_CREATE_ORCH_FUNC;
 char* AZ_ORCH_FUNC_CODE;
 char* SAVE_TO_FOLDER;
+char* PLOT_PROXY;
 float DENSITY = 0.5;
 
 string init(int argc, char** argv) {
   string config_file;
   string host = "127.0.0.1";
+  string plot_proxy = "http://127.0.0.1:8000";
   string az_create_orch_func;
   string az_orch_func_code;
   string save_to_folder;
@@ -97,7 +99,8 @@ string init(int argc, char** argv) {
       "az-orchestrator-code", value<string>(&az_orch_func_code),
       "Code for azure orchestrator function")(
       "orchestrator-standalone", value<bool>(&IS_ORCHESTRATOR_STANDALONE),
-      "Determines if orchestrator is standalone");
+      "Determines if orchestrator is standalone"),
+      ("plot-proxy", value<string>(&plot_proxy), "Url of plot proxy");
   game.add(window).add(development).add(cloud);
 
   variables_map vm;
@@ -124,12 +127,25 @@ string init(int argc, char** argv) {
       malloc(sizeof(char) * (az_orch_func_code.size() + 1)));
   SAVE_TO_FOLDER = reinterpret_cast<char*>(
       malloc(sizeof(char) * (save_to_folder.size() + 1)));
+  PLOT_PROXY =
+      reinterpret_cast<char*>(malloc(sizeof(char) * (plot_proxy.size() + 1)));
   snprintf(HOST, host.size() + 1, host.c_str());
   snprintf(AZ_CREATE_ORCH_FUNC, az_create_orch_func.size() + 1,
            az_create_orch_func.c_str());
   snprintf(AZ_ORCH_FUNC_CODE, az_orch_func_code.size() + 1,
            az_orch_func_code.c_str());
   snprintf(SAVE_TO_FOLDER, save_to_folder.size() + 1, save_to_folder.c_str());
+  snprintf(PLOT_PROXY, plot_proxy.size() + 1, plot_proxy.c_str());
   return load_matrix;
+}
+
+string get_plot_proxy_port() {
+  string port;
+  for (int i = strlen(PLOT_PROXY) - 1; i >= 0; i--) {
+    if (PLOT_PROXY[i] == ':') break;
+    port.push_back(PLOT_PROXY[i]);
+  }
+  reverse(port.begin(), port.end());
+  return port;
 }
 };  // namespace Config

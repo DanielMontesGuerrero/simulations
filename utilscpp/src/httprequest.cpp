@@ -4,11 +4,11 @@
 #include <map>
 #include <sstream>
 #include <string>
+#include <nlohmann/json.hpp>
 #include <curlpp/Easy.hpp>
 #include <curlpp/Exception.hpp>
 #include <curlpp/Options.hpp>
 #include <curlpp/cURLpp.hpp>
-#include <nlohmann/json.hpp>
 
 using std::list;
 using std::map;
@@ -19,12 +19,17 @@ using curlpp::Easy;
 using curlpp::options::Url;
 using curlpp::options::WriteStream;
 
-json make_htpp_request(string url, map<string, string> query_params) {
+json make_htpp_request(string url, map<string, string> query_params,
+                       bool is_post = false) {
   try {
     Easy request;
     stringstream response;
     request.setOpt(new Url(url + get_params_string(query_params)));
     request.setOpt(new WriteStream(&response));
+    if (is_post) {
+      request.setOpt(new curlpp::options::PostFields(""));
+      request.setOpt(new curlpp::options::PostFieldSize(0));
+    }
     request.perform();
     auto raw_response = response.str();
     auto response_json = json::parse(raw_response);
