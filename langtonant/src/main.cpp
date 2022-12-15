@@ -4,16 +4,16 @@
 #include <ctime>
 #include <iostream>
 
-#include "gameoflife/client.hpp"
-#include "gameoflife/config.hpp"
-#include "gameoflife/drawutils.hpp"
-#include "gameoflife/gamehandler.hpp"
-#include "gameoflife/updatemanager.hpp"
+#include "langtonant/client.hpp"
+#include "langtonant/config.hpp"
+#include "langtonant/drawutils.hpp"
+#include "langtonant/gamehandler.hpp"
+#include "langtonant/updatemanager.hpp"
 #include "utilscpp/mousepointer.hpp"
 #include "utilscpp/utils.hpp"
 
 int main(int argc, char **argv) {
-  string matrix_config = Config::init(argc, argv);
+  string state_config = Config::init(argc, argv);
   srand(time(NULL));
 
   if (SDL_Init(SDL_INIT_VIDEO) < 0 || TTF_Init() < 0) {
@@ -46,7 +46,7 @@ int main(int argc, char **argv) {
   SDL_SetWindowTitle(window, "Game of life");
 
   GameHandler gamehandler(Config::GRID_HEIGHT, Config::GRID_WIDTH,
-                          Config::SHOULD_EXECUTE_LOCALLY, matrix_config);
+                          Config::SHOULD_EXECUTE_LOCALLY, state_config);
   UpdateManager manager;
   manager.gamte_started_timestamp = clock();
   manager.last_update_timestamp = clock();

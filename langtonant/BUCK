@@ -1,0 +1,19 @@
+load("//:subdir_glob.bzl", "subdir_glob")
+load("//:buckaroo_macros.bzl", "buckaroo_deps_from_package")
+
+cxx_binary(
+    name = "langtonant",
+    header_namespace = "langtonant",
+    headers = subdir_glob([
+        ("include", "**/*.hpp"),
+    ]),
+    srcs = glob([
+        "src/**/*.cpp",
+    ]),
+    deps = [
+               "//utilscpp:utilscpp",
+               "//:sdl",
+               "//:boost",
+           ] +
+           buckaroo_deps_from_package("github.com/buckaroo-pm/nlohmann-json"),
+)
