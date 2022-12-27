@@ -33,6 +33,9 @@ extern char* AZ_ORCH_FUNC_CODE;
 extern float DENSITY;
 extern char* SAVE_TO_FOLDER;
 extern char* PLOT_PROXY;
+extern int ATTRACTORS_ROWS;
+extern int ATTRACTORS_COLS;
+extern bool SHOULD_GRAPH;
 
 string init(int argc, char** argv);
 string get_plot_proxy_port();

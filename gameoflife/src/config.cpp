@@ -46,6 +46,9 @@ char* AZ_ORCH_FUNC_CODE;
 char* SAVE_TO_FOLDER;
 char* PLOT_PROXY;
 float DENSITY = 0.5;
+int ATTRACTORS_ROWS;
+int ATTRACTORS_COLS;
+bool SHOULD_GRAPH;
 
 string init(int argc, char** argv) {
   string config_file;
@@ -61,6 +64,12 @@ string init(int argc, char** argv) {
   options_description development("Dev options");
   options_description cloud("Cloud options");
   game.add_options()("help", "Shows available options")(
+      "attractors-cols", value<int>(&ATTRACTORS_COLS)->default_value(2),
+      "Cols size for attractors calculation")(
+      "attractors-rows", value<int>(&ATTRACTORS_ROWS)->default_value(2),
+      "Rows size for attractors calculation")(
+      "should-graph", value<bool>(&SHOULD_GRAPH)->default_value(false),
+      "Should perform calculations for graphs")(
       "config", value<string>(&config_file)->default_value("GAMEOFLIFE.cfg"),
       "configuration file")("rows", value<int>(&GRID_HEIGHT), "Number of rows")(
       "cols", value<int>(&GRID_WIDTH), "Number of cols")(

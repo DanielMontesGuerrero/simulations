@@ -53,17 +53,20 @@ GameHandler::GameHandler(int rows, int cols, bool is_executed_locally,
 }
 
 void GameHandler::update() {
+  pair<vector<int>, vector<int>> edges;
   if (is_executed_locally) {
-    gameoflife.update();
+    edges = gameoflife.update();
   } else if (!Config::IS_ORCHESTRATOR_STANDALONE) {
     send_update_message();
   }
-  try {
-    update_plot_proxy("density", get_current_iteration(), get_density());
-    update_plot_proxy("entropy", get_current_iteration(), get_entropy());
-  }
-  catch(...) {
-    // proxy not connected
+  if (Config::SHOULD_GRAPH) {
+    try {
+      update_plot_attractors(edges);
+      update_plot_proxy("density", get_current_iteration(), get_density());
+      update_plot_proxy("entropy", get_current_iteration(), get_entropy());
+    } catch (...) {
+      // proxy not connected
+    }
   }
 }
 

@@ -21,14 +21,24 @@ using curlpp::options::WriteStream;
 
 json make_htpp_request(string url, map<string, string> query_params,
                        bool is_post = false) {
+  string dummy;
+  return make_htpp_request(url, query_params, is_post, dummy);
+}
+
+json make_htpp_request(string url, map<string, string> query_params,
+                       bool is_post, const string& body) {
   try {
     Easy request;
     stringstream response;
+    std::list<std::string> header;
+    header.push_back("Content-Type: application/json");
+    request.setOpt(new curlpp::options::HttpHeader(header));
+
     request.setOpt(new Url(url + get_params_string(query_params)));
     request.setOpt(new WriteStream(&response));
     if (is_post) {
-      request.setOpt(new curlpp::options::PostFields(""));
-      request.setOpt(new curlpp::options::PostFieldSize(0));
+      request.setOpt(new curlpp::options::PostFields(body));
+      request.setOpt(new curlpp::options::PostFieldSize(body.size()));
     }
     request.perform();
     auto raw_response = response.str();

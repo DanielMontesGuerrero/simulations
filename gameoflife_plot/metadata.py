@@ -21,4 +21,4 @@ density_metadata = PlotMetadata('Gráfica de la Densidad', 'Generación', 'Densi
 ], labels=['densidad', 'log10(densidad)'])
 entropy_metadata = PlotMetadata('Gráfica de la Entropía', 'Generación', 'Entropía', ['o-b'], 1, [
     lambda x: x,
-], labels=['entripia'])
+], labels=['entropía'])

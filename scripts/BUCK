@@ -7,3 +7,13 @@ sh_binary(
     name = "kill_orchestrator",
     main = "kill_orchestrator.sh",
 )
+
+sh_binary(
+    name = "run_plot_proxy",
+    main = "run_plot_proxy.sh",
+)
+
+sh_binary(
+    name = "kill_plot_proxy",
+    main = "kill_plot_proxy.sh",
+)

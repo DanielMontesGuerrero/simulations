@@ -4,10 +4,12 @@
 
 #include <string>
 #include <tuple>
+#include <utility>
 #include <vector>
 
 #include "utilscpp/matrix.hpp"
 
+using std::pair;
 using std::string;
 using std::tuple;
 using std::vector;
@@ -40,3 +42,4 @@ class Client {
 
 tuple<string, int> get_orchestrator_host();
 void update_plot_proxy(string type, int iteration, float value);
+void update_plot_attractors(const pair<vector<int>, vector<int>>& edges);

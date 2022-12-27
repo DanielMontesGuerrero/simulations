@@ -24,7 +24,7 @@ class GameOfLife {
 
   GameOfLife();
   GameOfLife(int rows, int cols, std::function<bool(int, int)> generator);
-  void update();
+  pair<vector<int>, vector<int>> update();
   void on_click(int i, int j);
 
  private:
@@ -32,4 +32,5 @@ class GameOfLife {
   vector<pair<int, int>> neighborhood_diffs;
 
   int get_neighborhood_count(int i, int j, const Matrix &matrix) const;
+  vector<int> get_states_for_every_submatrix(int rows, int cols);
 };

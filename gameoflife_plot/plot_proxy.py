@@ -3,7 +3,9 @@ import random
 import redis
 import sys
 import getopt
+import json
 
+from typing import Dict
 from flask import Flask, request
 from redis.commands.json.path import Path
 
@@ -32,7 +34,7 @@ def update_data(data_type: str, iteration: int, value: float):
     data = redis_client.json().get(data_type)
     data['data'].append([iteration, value])
     redis_client.json().set(data_type, Path.root_path(), data)
-    print(data)
+    # print(data)
 
 
 def pop_data(data_type: str):
@@ -42,7 +44,7 @@ def pop_data(data_type: str):
     value = data['data'][0]
     data['data'] = data['data'][1:]
     redis_client.json().set(data_type, Path.root_path(), data)
-    print(data)
+    # print(data)
     return value
 
 
@@ -60,6 +62,34 @@ def handle_get(data_type: str):
     if len(value) == 0:
         return {'result': False}
     return {'result': True, 'iteration': value[0], 'value': value[1]}
+
+
+def handle_post_attractors(request_data: Dict):
+    data = redis_client.json().get('attractors')
+    # edges = [];
+    for i in range(len(request_data['prev'])):
+        u = request_data['prev'][i]
+        v = request_data['next'][i]
+        if u not in data:
+            data[u] = []
+        data[u].append(v)
+        # data[u] = list(set(data[u]))
+        # edges.append([request_data['prev'][i], request_data['next'][i]])
+    # data['edges'] += edges
+    redis_client.json().set('attractors', Path.root_path(), data)
+    # print(data)
+    return {'result': True}
+
+
+def handle_get_attractors():
+    data = redis_client.json().get('attractors')
+    edges = []
+    for u in data:
+        for v in data[u]:
+            edges.append([u, v])
+    redis_client.json().set('attractors', Path.root_path(), {})
+    # print(data)
+    return {'result': True, 'edges': edges}
 
 
 @app.route('/')
@@ -94,6 +124,25 @@ def status():
     return response
 
 
+@app.post('/attractors')
+def post_attractors():
+    # print(request.json)
+    return handle_post_attractors(request.json)
+
+
+@app.get('/attractors')
+def get_attractors():
+    return handle_get_attractors()
+
+
+@app.get('/save')
+def save_to_file():
+    data = redis_client.json().get('attractors')
+    with open('graph.json', 'w') as fp:
+        json.dump(data, fp, sort_keys=True, indent=2)
+    return {'result': True}
+
+
 if __name__ == '__main__':
     init()
     while True:
@@ -106,4 +155,5 @@ if __name__ == '__main__':
     initial_data = {'data': []}
     redis_client.json().set('density', Path.root_path(), initial_data)
     redis_client.json().set('entropy', Path.root_path(), initial_data)
+    redis_client.json().set('attractors', Path.root_path(), {})
     app.run(host='0.0.0.0', port=port)

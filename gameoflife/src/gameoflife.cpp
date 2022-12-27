@@ -27,9 +27,11 @@ GameOfLife::GameOfLife() : matrix(0, 0) {
   neighborhood_diffs = {};
 }
 
-void GameOfLife::update() {
+pair<vector<int>, vector<int>> GameOfLife::update() {
   current_iteration++;
   const Matrix prev_matrix = matrix;
+  vector<int> prev_states, next_states;
+  if (Config::SHOULD_GRAPH) prev_states = get_states_for_every_submatrix(2, 2);
   for (int i = 0; i < matrix.rows; i++) {
     for (int j = 0; j < matrix.cols; j++) {
       int cnt = get_neighborhood_count(i, j, prev_matrix);
@@ -46,6 +48,29 @@ void GameOfLife::update() {
       matrix.set(i, j, new_state);
     }
   }
+  if (Config::SHOULD_GRAPH)
+    next_states = get_states_for_every_submatrix(Config::ATTRACTORS_ROWS,
+                                                 Config::ATTRACTORS_COLS);
+  return {prev_states, next_states};
+}
+
+vector<int> GameOfLife::get_states_for_every_submatrix(int rows, int cols) {
+  vector<int> states;
+  for (int i = 0; i < matrix.rows; i++) {
+    for (int j = 0; j < matrix.cols; j++) {
+      int state = 0;
+      for (int sub_i = 0; sub_i < rows; sub_i++) {
+        for (int sub_j = 0; sub_j < cols; sub_j++) {
+          if (matrix.get((i + sub_i) % matrix.rows,
+                         (j + sub_j) % matrix.cols)) {
+            state |= (1 << (sub_i * rows + sub_j));
+          }
+        }
+      }
+      states.push_back(state);
+    }
+  }
+  return states;
 }
 
 int GameOfLife::get_neighborhood_count(int i, int j,
@@ -64,4 +89,11 @@ int GameOfLife::get_neighborhood_count(int i, int j,
   return ans;
 }
 
-void GameOfLife::on_click(int i, int j) { matrix.toggle(i, j); }
+void GameOfLife::on_click(int i, int j) {
+  if (matrix.get(i, j)) {
+    num_cells_alive--;
+  } else {
+    num_cells_alive++;
+  }
+  matrix.toggle(i, j);
+}

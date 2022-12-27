@@ -10,6 +10,7 @@
 #include <map>
 #include <string>
 #include <tuple>
+#include <utility>
 #include <vector>
 
 #include "gameoflife/config.hpp"
@@ -20,6 +21,7 @@
 using std::cerr;
 using std::cout;
 using std::endl;
+using std::pair;
 using std::string;
 using std::tuple;
 using std::vector;
@@ -116,6 +118,20 @@ void update_plot_proxy(string type, int iteration, float value) {
       make_htpp_request(string(Config::PLOT_PROXY) + "/" + type, params, true);
   if (response["result"] == nullptr) {
     cerr << "Error reading response of update_plot_proxy" << endl;
+  } else if (!response["result"]) {
+    cerr << "Error updating plot proxy" << endl;
+  }
+}
+
+void update_plot_attractors(const pair<vector<int>, vector<int>>& edges) {
+  if (strlen(Config::PLOT_PROXY) == 0) return;
+  json data;
+  data["prev"] = edges.first;
+  data["next"] = edges.second;
+  auto response = make_htpp_request(string(Config::PLOT_PROXY) + "/attractors",
+                                    {}, true, data.dump());
+  if (response["result"] == nullptr) {
+    cerr << "Error reading response of update_plot_attractors" << endl;
   } else if (!response["result"]) {
     cerr << "Error updating plot proxy" << endl;
   }
