@@ -109,6 +109,7 @@ pair<int, int> Ant::check_collisions(
       default:
         break;
     }
+    // queen_to_reproductor_collision_diffs = {{0, 1}, {1,0}, {-1, 0}, {0, -1}};
     for (auto diff : queen_to_reproductor_collision_diffs) {
       pair<int, int> coord = {(x + diff.first + xlim) % xlim,
                               (y + diff.second + ylim) % ylim};
@@ -135,6 +136,8 @@ pair<int, int> Ant::check_collisions(
       default:
         break;
     }
+    // reproductor_to_queen_collisions_diffs = {{0, 1}, {1,0}, {-1, 0}, {0,
+    // -1}};
     for (auto diff : reproductor_to_queen_collisions_diffs) {
       pair<int, int> coord = {(x + diff.first + xlim) % xlim,
                               (y + diff.second + ylim) % ylim};
@@ -240,4 +243,15 @@ int LangtonAntGame::get_neighborhood_count(int i, int j,
   return ans;
 }
 
-void LangtonAntGame::on_click(int i, int j) { matrix.toggle(i, j); }
+void LangtonAntGame::on_click(int i, int j) {
+  Ant new_ant(j, i);
+  new_ant.type = 0;
+  for (auto it = ants.begin(); it != ants.end(); it++) {
+    if ((*it).x == j && (*it).y == i) {
+      new_ant.type = (*it).type + 1;
+      ants.erase(it);
+      break;
+    }
+  }
+  if (new_ant.type != 4) ants.push_back(new_ant);
+}
